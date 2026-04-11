@@ -8,7 +8,6 @@ import {
   where, 
   onSnapshot, 
   addDoc, 
-  deleteDoc, 
   doc, 
   getDocs,
   writeBatch
