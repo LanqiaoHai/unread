@@ -25,14 +25,18 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
       const credential = EmailAuthProvider.credential(email, password);
       await linkWithCredential(user, credential);
       setSuccess(true);
-    } catch (err: any) {
-      console.error(err);
+      } catch (err: any) {
+      console.error("Link Error:", err);
       if (err.code === 'auth/email-already-in-use') {
-        setError('该邮箱已被注册。');
+        setError('该邮箱已被注册，请尝试其他邮箱。');
       } else if (err.code === 'auth/weak-password') {
         setError('密码太弱，请至少使用6个字符。');
+      } else if (err.code === 'auth/operation-not-allowed') {
+        setError('邮箱登录未在 Firebase 控制台中启用。');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setError('当前域名未在 Firebase 授权域名列表中。');
       } else {
-        setError('绑定失败，请稍后再试。');
+        setError(`绑定失败: ${err.code || err.message || '未知错误'}`);
       }
     } finally {
       setLoading(false);
