@@ -60,7 +60,15 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
           你的数据目前保存在云端并与当前设备临时绑定。绑定邮箱以永久保存。
         </p>
 
-        {!isAnonymous || success ? (
+        {!user ? (
+          <div className="bg-amber-50 border border-amber-100 p-6 rounded-2xl flex items-center gap-4 text-amber-700">
+            <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+            <div>
+              <p className="font-bold">正在连接云端...</p>
+              <p className="text-xs opacity-80">如果长时间卡在此处，请检查 Firebase 配置是否正确。</p>
+            </div>
+          </div>
+        ) : !isAnonymous || success ? (
           <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-2xl flex flex-col items-center text-center">
             <CheckCircle2 className="w-12 h-12 text-emerald-500 mb-3" />
             <h3 className="font-bold text-emerald-800 mb-1">账号已绑定</h3>
