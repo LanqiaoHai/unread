@@ -4,9 +4,8 @@ import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { Search } from './pages/Search';
 import { Snapshot } from './pages/Snapshot';
-import { auth } from './firebase';
-import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { useStore, startFirestoreSync } from './store/useStore';
+import { supabase } from './lib/supabase';
+import { useStore, startSupabaseSync } from './store/useStore';
 import './App.css';
 
 const App: React.FC = () => {
@@ -15,33 +14,37 @@ const App: React.FC = () => {
   useEffect(() => {
     // 1. Initial Anonymous Sign In
     const login = async () => {
-      if (!auth.currentUser) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
         try {
-          await signInAnonymously(auth);
+          await supabase.auth.signInAnonymously();
         } catch (error) {
-          console.error("Firebase Anonymous Login Failed", error);
+          console.error("Supabase Anonymous Login Failed", error);
         }
       }
     };
     login();
 
     // 2. Auth State Listener
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        console.log("Logged in as:", user.uid);
-        // Start Firestore listener
-        const unsubscribeFirestore = startFirestoreSync(user.uid);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        console.log("Logged in as:", session.user.id);
         
-        // Try to sync existing local data to Firestore if this is first login
+        // Start Supabase real-time sync
+        const unsubscribeSupabase = startSupabaseSync(session.user.id);
+        
+        // Try to sync existing local data
         syncFromLocalStorage();
 
+        // Note: In Supabase, we might need a different way to handle cleanup if needed,
+        // but for now we follow the same pattern.
         return () => {
-          unsubscribeFirestore();
+          unsubscribeSupabase();
         };
       }
     });
 
-    return () => unsubscribeAuth();
+    return () => subscription.unsubscribe();
   }, [syncFromLocalStorage]);
 
   return (

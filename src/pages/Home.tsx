@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { Star, Skull, Trash2, Calendar, BookOpen, Settings, Mail, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
-import { auth } from '../firebase';
-import { EmailAuthProvider, linkWithCredential } from 'firebase/auth';
-import type { User } from 'firebase/auth';
+import { supabase } from '../lib/supabase';
+import type { User } from '@supabase/supabase-js';
 
 export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }> = ({ user, onClose }) => {
   const [email, setEmail] = useState('');
@@ -13,7 +12,7 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
   const [success, setSuccess] = useState(false);
 
   // Check if user already linked an email (not anonymous)
-  const isAnonymous = user?.isAnonymous ?? true;
+  const isAnonymous = user?.is_anonymous ?? true;
 
   const handleLinkAccount = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,21 +21,18 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
     setLoading(true);
     setError('');
     try {
-      const credential = EmailAuthProvider.credential(email, password);
-      await linkWithCredential(user, credential);
+      const { error } = await supabase.auth.updateUser({
+        email,
+        password,
+      });
+      if (error) throw error;
       setSuccess(true);
-      } catch (err: any) {
+    } catch (err: any) {
       console.error("Link Error:", err);
-      if (err.code === 'auth/email-already-in-use') {
+      if (err.message?.includes('already registered')) {
         setError('该邮箱已被注册，请尝试其他邮箱。');
-      } else if (err.code === 'auth/weak-password') {
-        setError('密码太弱，请至少使用6个字符。');
-      } else if (err.code === 'auth/operation-not-allowed') {
-        setError('邮箱登录未在 Firebase 控制台中启用。');
-      } else if (err.code === 'auth/unauthorized-domain') {
-        setError('当前域名未在 Firebase 授权域名列表中。');
       } else {
-        setError(`绑定失败: ${err.code || err.message || '未知错误'}`);
+        setError(`绑定失败: ${err.message || '未知错误'}`);
       }
     } finally {
       setLoading(false);
@@ -136,10 +132,16 @@ export const Home: React.FC = () => {
 
   useEffect(() => {
     // Listen to current user changes for the settings panel
-    const unsubscribe = auth.onAuthStateChanged((u) => {
-      setUser(u);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
     });
-    return () => unsubscribe();
+    
+    // Initial user state
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const laterBooks = abandonedBooks.filter((b) => b.score > 0);

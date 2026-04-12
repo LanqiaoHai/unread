@@ -1,17 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { AbandonedBook } from '../types';
-import { db, auth } from '../firebase';
-import { 
-  collection, 
-  query, 
-  where, 
-  onSnapshot, 
-  addDoc, 
-  doc, 
-  getDocs,
-  writeBatch
-} from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
 
 interface UnreadState {
   abandonedBooks: AbandonedBook[];
@@ -31,19 +21,29 @@ export const useStore = create<UnreadState>()(
       setAbandonedBooks: (books) => set({ abandonedBooks: books }),
 
       addAbandonedBook: async (book) => {
-        const user = auth.currentUser;
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
+        
         if (user) {
           try {
-            await addDoc(collection(db, 'books'), {
-              ...book,
-              uid: user.uid,
-              createdAt: Date.now()
+            const { error } = await supabase.from('books').insert({
+              id: book.id,
+              uid: user.id,
+              title: book.title,
+              authors: book.authors,
+              thumbnail: book.thumbnail,
+              description: book.description,
+              published_date: book.publishedDate,
+              abandoned_at: book.abandonedAt,
+              progress: book.progress,
+              reason: book.reason,
+              score: book.score
             });
+            if (error) throw error;
           } catch (error) {
-            console.error("Error adding book to Firestore:", error);
+            console.error("Error adding book to Supabase:", error);
           }
         } else {
-          // Fallback to local state if not logged in (though we try to always be logged in)
           set((state) => ({
             abandonedBooks: [book, ...state.abandonedBooks],
           }));
@@ -51,18 +51,19 @@ export const useStore = create<UnreadState>()(
       },
 
       removeAbandonedBook: async (id) => {
-        const user = auth.currentUser;
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
+
         if (user) {
           try {
-            // In Firestore, we need the document ID. 
-            // We'll have to find the document with the book's 'id' field.
-            const q = query(collection(db, 'books'), where('id', '==', id), where('uid', '==', user.uid));
-            const snapshot = await getDocs(q);
-            const batch = writeBatch(db);
-            snapshot.forEach((d) => batch.delete(d.ref));
-            await batch.commit();
+            const { error } = await supabase
+              .from('books')
+              .delete()
+              .eq('id', id)
+              .eq('uid', user.id);
+            if (error) throw error;
           } catch (error) {
-            console.error("Error removing book from Firestore:", error);
+            console.error("Error removing book from Supabase:", error);
           }
         } else {
           set((state) => ({
@@ -72,19 +73,32 @@ export const useStore = create<UnreadState>()(
       },
 
       syncFromLocalStorage: async () => {
-        const user = auth.currentUser;
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
         const { abandonedBooks } = get();
+
         if (user && abandonedBooks.length > 0) {
           try {
-            const batch = writeBatch(db);
-            abandonedBooks.forEach((book) => {
-              const docRef = doc(collection(db, 'books'));
-              batch.set(docRef, { ...book, uid: user.uid });
-            });
-            await batch.commit();
+            const booksToInsert = abandonedBooks.map(book => ({
+              id: book.id,
+              uid: user.id,
+              title: book.title,
+              authors: book.authors,
+              thumbnail: book.thumbnail,
+              description: book.description,
+              published_date: book.publishedDate,
+              abandoned_at: book.abandonedAt,
+              progress: book.progress,
+              reason: book.reason,
+              score: book.score
+            }));
+
+            const { error } = await supabase.from('books').insert(booksToInsert);
+            if (error) throw error;
+            
             set({ abandonedBooks: [] }); // Clear local books after sync
           } catch (error) {
-            console.error("Error syncing local books to Firestore:", error);
+            console.error("Error syncing local books to Supabase:", error);
           }
         }
       }
@@ -92,24 +106,62 @@ export const useStore = create<UnreadState>()(
     {
       name: 'unread-storage',
       storage: createJSONStorage(() => localStorage),
-      // Only persist local books if not logged in
       partialize: (state) => ({ abandonedBooks: state.abandonedBooks }),
     }
   )
 );
 
 // Helper to start real-time sync
-export const startFirestoreSync = (uid: string) => {
-  const q = query(collection(db, 'books'), where('uid', '==', uid));
-  return onSnapshot(q, (snapshot) => {
-    const books = snapshot.docs.map(d => {
-      const data = d.data();
-      return {
-        ...data,
-      } as AbandonedBook;
-    });
-    // Sort by abandonedAt desc
-    books.sort((a, b) => b.abandonedAt - a.abandonedAt);
-    useStore.getState().setAbandonedBooks(books);
-  });
+export const startSupabaseSync = (userId: string) => {
+  const fetchBooks = async () => {
+    const { data, error } = await supabase
+      .from('books')
+      .select('*')
+      .eq('uid', userId)
+      .order('abandoned_at', { ascending: false });
+    
+    if (data) {
+      const mappedBooks = data.map(repoBook => ({
+        id: repoBook.id,
+        title: repoBook.title,
+        authors: repoBook.authors,
+        thumbnail: repoBook.thumbnail,
+        description: repoBook.description,
+        publishedDate: repoBook.published_date,
+        abandonedAt: repoBook.abandoned_at,
+        progress: repoBook.progress,
+        reason: repoBook.reason,
+        score: repoBook.score
+      })) as AbandonedBook[];
+      
+      useStore.getState().setAbandonedBooks(mappedBooks);
+    }
+    if (error) {
+      console.error("Error fetching books from Supabase:", error);
+    }
+  };
+
+  fetchBooks();
+
+  // Real-time listener
+  const channel = supabase
+    .channel(`public:books:uid=eq.${userId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'books',
+        filter: `uid=eq.${userId}`,
+      },
+      (payload) => {
+        console.log('Change received!', payload);
+        fetchBooks();
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
 };
