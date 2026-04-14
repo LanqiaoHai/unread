@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
-import { Star, Skull, Trash2, Calendar, BookOpen, Settings, Mail, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
+import { Star, Skull, Trash2, Calendar, BookOpen, Settings, Mail, CheckCircle2, Loader2, AlertCircle, Download, Share } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { toPng } from 'html-to-image';
+import { saveAs } from 'file-saver';
 import type { User } from '@supabase/supabase-js';
 
 export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }> = ({ user, onClose }) => {
@@ -174,6 +176,24 @@ export const Home: React.FC = () => {
     );
   };
 
+  const handleExport = async (bookId: string, bookTitle: string) => {
+    const node = document.getElementById(`book-card-${bookId}`);
+    if (!node) return;
+
+    try {
+      const dataUrl = await toPng(node, {
+        backgroundColor: '#ffffff',
+        style: {
+          borderRadius: '24px',
+        },
+        pixelRatio: 2,
+      });
+      saveAs(dataUrl, `Unread-${bookTitle}.png`);
+    } catch (error) {
+      console.error('Export failed:', error);
+    }
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
       <header className="mb-12 flex justify-between items-start">
@@ -225,6 +245,7 @@ export const Home: React.FC = () => {
           {displayedBooks.map((book) => (
             <div
               key={book.id + book.abandonedAt}
+              id={`book-card-${book.id}`}
               className="group bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden"
             >
               <div className="flex gap-6">
@@ -243,13 +264,22 @@ export const Home: React.FC = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start mb-1">
                     <h3 className="text-lg font-bold truncate leading-tight">{book.title}</h3>
-                    <button
-                      onClick={() => removeAbandonedBook(book.id)}
-                      className="p-2 text-slate-200 hover:text-red-400 transition-colors"
-                      title="删除记录"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleExport(book.id, book.title)}
+                        className="p-2 text-slate-200 hover:text-blue-500 transition-colors"
+                        title="导出图片"
+                      >
+                        <Download className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => removeAbandonedBook(book.id)}
+                        className="p-2 text-slate-200 hover:text-red-400 transition-colors"
+                        title="删除记录"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                   
                   <p className="text-sm text-slate-400 mb-3 font-light">

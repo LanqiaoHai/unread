@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { Star, Skull, Save, ArrowLeft, BookOpen, Clock } from 'lucide-react';
 import type { Book, AbandonedBook } from '../types';
+import { ActionAnimation } from '../components/ActionAnimation';
 
 export const Snapshot: React.FC = () => {
   const location = useLocation();
@@ -23,6 +24,8 @@ export const Snapshot: React.FC = () => {
     }
   }, [location.state, navigate]);
 
+  const [showAnimation, setShowAnimation] = useState(false);
+
   if (!book) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -38,6 +41,10 @@ export const Snapshot: React.FC = () => {
     };
 
     addAbandonedBook(abandonedBook);
+    setShowAnimation(true);
+  };
+
+  const handleAnimationComplete = () => {
     navigate('/');
   };
 
@@ -164,6 +171,15 @@ export const Snapshot: React.FC = () => {
           </button>
         </div>
       </form>
+
+      {showAnimation && (
+        <ActionAnimation 
+          type={score! > 0 ? 'shelf' : 'fire'}
+          bookCover={book.thumbnail}
+          bookTitle={book.title}
+          onComplete={handleAnimationComplete}
+        />
+      )}
     </div>
   );
 };

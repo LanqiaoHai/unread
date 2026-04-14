@@ -17,25 +17,40 @@ export const Search: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
+      // Using another common Douban Mirror API
       const response = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10`
+        `https://douban.861000.xyz/q/${encodeURIComponent(query)}`
       );
       if (!response.ok) throw new Error('网络请求失败');
       const data = await response.json();
       
-      const books: Book[] = (data.items || []).map((item: any) => ({
-        id: item.id,
-        title: item.volumeInfo.title,
-        authors: item.volumeInfo.authors || ['未知作者'],
-        thumbnail: item.volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:'),
-        description: item.volumeInfo.description,
-        publishedDate: item.volumeInfo.publishedDate,
+      // Adaptation for different mirror structures
+      const items = data.books || data.items || [];
+      const books: Book[] = items.map((item: any) => ({
+        id: item.id || Math.random().toString(),
+        title: item.title,
+        authors: item.author || item.authors || ['未知作者'],
+        thumbnail: item.image ? `https://images.weserv.nl/?url=${encodeURIComponent(item.image.replace('https:', 'http:'))}` : undefined,
+        description: item.summary,
+        publishedDate: item.pubdate,
       }));
       
       setResults(books);
       if (books.length === 0) setError('未找到相关书籍');
     } catch (err) {
-      setError('搜索出错了，请稍后再试');
+      console.error("Search error:", err);
+      setError('豆瓣镜像暂时无法连接，已为您开启“手动模拟模式”，请再次点击搜索进行体验。');
+      
+      // Fallback: Mock data for verification
+      const mockBook: Book = {
+        id: 'mock-1',
+        title: query + ' (模拟搜索结果)',
+        authors: ['测试作者'],
+        thumbnail: 'https://images.weserv.nl/?url=https://img9.doubanio.com/view/subject/l/public/s27279654.jpg',
+        description: '由于豆瓣镜像接口不稳定，此为自动生成的模拟数据，用于验证动画与导出功能。',
+        publishedDate: '2024'
+      };
+      setResults([mockBook]);
     } finally {
       setLoading(false);
     }
