@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Sparkles, Flame } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 
 interface ActionAnimationProps {
   type: 'shelf' | 'fire';

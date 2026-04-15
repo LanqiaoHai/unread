@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '../store/useStore';
-import { Star, Skull, Trash2, Calendar, BookOpen, Settings, Mail, CheckCircle2, Loader2, AlertCircle, Download, Share, CheckSquare, Square, X, Archive, DownloadCloud } from 'lucide-react';
+import { Star, Skull, Trash2, Calendar, BookOpen, Settings, CheckCircle2, Loader2, Download, CheckSquare, Square, X, Archive, DownloadCloud } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { toPng } from 'html-to-image';
 import { saveAs } from 'file-saver';
@@ -44,7 +44,7 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [formError, setFormError] = useState('');
   const [success, setSuccess] = useState(false);
 
   const isAnonymous = user?.is_anonymous ?? true;
@@ -54,13 +54,13 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
     if (!user || !isAnonymous) return;
     
     setLoading(true);
-    setError('');
+    setFormError('');
     try {
-      const { error } = await supabase.auth.updateUser({ email, password });
-      if (error) throw error;
+      const { error: updateError } = await supabase.auth.updateUser({ email, password });
+      if (updateError) throw updateError;
       setSuccess(true);
     } catch (err: any) {
-      setError(`绑定失败: ${err.message || '未知错误'}`);
+      setFormError(`绑定失败: ${err.message || '未知错误'}`);
     } finally {
       setLoading(false);
     }
@@ -83,6 +83,7 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
           <form onSubmit={handleLinkAccount} className="space-y-4">
             <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-50 border border-slate-200 px-5 py-3 rounded-xl outline-none" placeholder="邮箱" />
             <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-50 border border-slate-200 px-5 py-3 rounded-xl outline-none" placeholder="密码" />
+            {formError && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-xl">{formError}</p>}
             <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg">
               {loading ? "处理中..." : "开启云同步"}
             </button>
