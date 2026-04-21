@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '../store/useStore';
-import { Star, Skull, Trash2, Calendar, BookOpen, Settings, CheckCircle2, Loader2, Download, CheckSquare, Square, X, Archive, DownloadCloud, Zap, TrendingUp, Heart, Bookmark, MessageCircle } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { ActionAnimation } from '../components/ActionAnimation';
+import { Star, Skull, Trash2, Calendar, BookOpen, Settings, CheckCircle2, Loader2, Download, CheckSquare, Square, X, Archive, DownloadCloud, Zap, TrendingUp, Heart, Bookmark, MessageCircle, Edit } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { toPng } from 'html-to-image';
 import { saveAs } from 'file-saver';
@@ -58,55 +60,97 @@ const ImagePreviewModal: React.FC<{ imageUrl: string; onClose: () => void }> = (
 };
 
 export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }> = ({ user, onClose }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [nickname, setNickname] = useState(user?.user_metadata?.display_name || '');
+  const [avatar, setAvatar] = useState(user?.user_metadata?.avatar_emoji || '👻');
   const [loading, setLoading] = useState(false);
-  const [formError, setFormError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  const isAnonymous = user?.is_anonymous ?? true;
+  const presets = ['👻', '🐱', '🐶', '🦊', '🐷', '🐸', '🌟', '🔥', '📚', '🚀', '👽', '👾'];
 
-  const handleLinkAccount = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !isAnonymous) return;
-    
+    if (!user) return;
     setLoading(true);
-    setFormError('');
     try {
-      const { error: updateError } = await supabase.auth.updateUser({ email, password });
-      if (updateError) throw updateError;
+      const { error } = await supabase.auth.updateUser({
+        data: { display_name: nickname, avatar_emoji: avatar }
+      });
+      if (error) throw error;
       setSuccess(true);
-    } catch (err: any) {
-      setFormError(`绑定失败: ${err.message || '未知错误'}`);
+      setTimeout(onClose, 1500);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  if (!user || user.is_anonymous) {
+    return (
+      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xl z-[100] flex items-center justify-center p-6">
+        <div className="glass-card max-w-md w-full rounded-[3rem] p-10 bg-white shadow-2xl relative text-center">
+          <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-slate-900">
+             <X className="w-6 h-6" />
+          </button>
+          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Settings className="w-8 h-8 text-slate-400" />
+          </div>
+          <h2 className="text-2xl font-black text-slate-900 mb-4 tracking-tighter">登录以设置资料</h2>
+          <p className="text-slate-400 font-bold">请点击右上角或底部导航栏的图标进行注册/登录。</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-xl z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
-      <div className="glass-card max-w-md w-full rounded-[3rem] p-10 shadow-2xl relative border-white/10">
-        <button onClick={onClose} className="absolute top-8 right-8 text-white/30 hover:text-white transition-colors">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xl z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
+      <div className="glass-card max-w-md w-full bg-white rounded-[3rem] p-10 shadow-2xl relative border-4 border-slate-900">
+        <button onClick={onClose} className="absolute top-8 right-8 text-slate-400 hover:text-slate-900 transition-colors">
           <X className="w-6 h-6" />
         </button>
-        <h2 className="text-3xl font-black text-white mb-2 flex items-center gap-3">
-          <Settings className="w-8 h-8 neon-text-blue" /> 同步
+        <h2 className="text-3xl font-black text-slate-900 mb-2 flex items-center gap-3 tracking-tighter">
+          <Settings className="w-8 h-8 text-brand-blue" /> 个人资料
         </h2>
-        <p className="text-sm text-white/40 mb-8">绑定账号，让你的“逃跑计划”随身而行。</p>
+        <p className="text-sm text-slate-400 font-bold mb-8">定制你的社区专属形象</p>
 
-        {!isAnonymous || success ? (
-          <div className="bg-emerald-500/10 border border-emerald-500/20 p-8 rounded-[2rem] flex flex-col items-center text-center">
-            <CheckCircle2 className="w-16 h-16 text-emerald-400 mb-4 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
-            <h3 className="font-black text-white mb-1">云端就位</h3>
-            <p className="text-xs text-white/40 font-mono mt-2 lowercase">{user?.email}</p>
+        {success ? (
+          <div className="bg-brand-green/10 border-4 border-brand-green/20 p-8 rounded-[2rem] flex flex-col items-center text-center">
+            <CheckCircle2 className="w-16 h-16 text-brand-green mb-4" />
+            <h3 className="font-black text-slate-900 mb-1">保存成功</h3>
           </div>
         ) : (
-          <form onSubmit={handleLinkAccount} className="space-y-4">
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 px-6 py-4 rounded-2xl outline-none focus:border-neon-blue focus:ring-1 focus:ring-neon-blue/50 transition-all text-white" placeholder="邮箱" />
-            <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 px-6 py-4 rounded-2xl outline-none focus:border-neon-blue focus:ring-1 focus:ring-neon-blue/50 transition-all text-white" placeholder="密码" />
-            {formError && <p className="text-neon-pink text-xs bg-neon-pink/5 p-4 rounded-2xl border border-neon-pink/10">{formError}</p>}
-            <button type="submit" disabled={loading} className="w-full dopamine-gradient text-white font-black py-5 rounded-2xl shadow-xl shadow-neon-pink/20 hover:scale-[1.02] active:scale-95 transition-all mt-4 tracking-widest">
-              {loading ? "同步中..." : "开启多端同步"}
+          <form onSubmit={handleSave} className="space-y-6">
+            <div>
+              <label className="block text-slate-900 font-black mb-3">选择头像</label>
+              <div className="grid grid-cols-6 gap-3">
+                {presets.map(emoji => (
+                  <button 
+                    key={emoji}
+                    type="button"
+                    onClick={() => setAvatar(emoji)}
+                    className={`w-12 h-12 text-2xl flex items-center justify-center rounded-2xl transition-all btn-bouncy ${avatar === emoji ? 'bg-brand-yellow border-4 border-slate-900 shadow-[2px_2px_0_0_rgba(0,0,0,1)] scale-110' : 'bg-slate-50 hover:bg-slate-100 border-2 border-transparent'}`}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-slate-900 font-black mb-3">我的昵称</label>
+              <input 
+                type="text" 
+                required 
+                maxLength={20}
+                value={nickname} 
+                onChange={(e) => setNickname(e.target.value)} 
+                className="w-full bg-slate-50 border-4 border-slate-200 px-6 py-4 rounded-2xl outline-none focus:border-brand-yellow focus:bg-white transition-all text-slate-900 font-bold placeholder:text-slate-300" 
+                placeholder="例如：不想看书的猫" 
+              />
+            </div>
+            
+            <button type="submit" disabled={loading} className="w-full cute-gradient-yellow text-slate-900 font-black py-4 rounded-full shadow-[4px_4px_0_0_rgba(0,0,0,1)] border-4 border-slate-900 hover:translate-y-1 hover:shadow-none transition-all mt-4 tracking-widest text-xl">
+              {loading ? "保存中..." : "保存设置"}
             </button>
           </form>
         )}
@@ -120,6 +164,9 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
 
 export const Home: React.FC = () => {
   const { abandonedBooks, removeAbandonedBook, stats: storeStats, fetchUserStats } = useStore();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [animationType, setAnimationType] = useState<'archive' | 'burn' | null>(location.state?.ritual || null);
   const [activeTab, setActiveTab] = useState<'later' | 'avoid'>('later');
   const [showSettings, setShowSettings] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -171,12 +218,20 @@ export const Home: React.FC = () => {
     const node = document.getElementById(`book-card-${id}`);
     if (!node) return null;
     try {
-      return await toPng(node, {
+      node.classList.add('export-mode');
+      const oldTransform = node.style.transform;
+      node.style.transform = 'none';
+
+      const dataUrl = await toPng(node, {
         backgroundColor: '#FFFDF0',
-        style: { borderRadius: '48px' },
+        style: { borderRadius: '48px', transform: 'none' }, // Ensure strict override
         pixelRatio: 2,
         cacheBust: true,
       });
+
+      node.style.transform = oldTransform;
+      node.classList.remove('export-mode');
+      return dataUrl;
     } catch (e) {
       console.error('Export failed', e);
       return null;
@@ -320,6 +375,7 @@ export const Home: React.FC = () => {
                 <div className="flex-1 min-w-0 flex flex-col">
                   {!isSelectionMode && (
                     <div className="flex justify-end gap-3 mb-2 -mt-4">
+                       <button onClick={(e) => { e.stopPropagation(); navigate('/snapshot', { state: { book, isEdit: true, existingData: book } }); }} className="p-3 bg-brand-yellow/10 hover:bg-brand-yellow text-brand-yellow hover:text-slate-900 rounded-2xl transition-all"><Edit className="w-6 h-6" /></button>
                        <button onClick={(e) => { e.stopPropagation(); handleExportSingle(book.id); }} className="p-3 bg-brand-blue/10 hover:bg-brand-blue text-brand-blue hover:text-white rounded-2xl transition-all"><Download className="w-6 h-6" /></button>
                        <button onClick={(e) => { e.stopPropagation(); removeAbandonedBook(book.id); }} className="p-3 bg-brand-red/10 hover:bg-brand-red text-brand-red hover:text-white rounded-2xl transition-all"><Trash2 className="w-6 h-6" /></button>
                     </div>
@@ -379,6 +435,7 @@ export const Home: React.FC = () => {
 
       {showSettings && <SettingsPanel user={user} onClose={() => setShowSettings(false)} />}
       {previewImageUrl && <ImagePreviewModal imageUrl={previewImageUrl} onClose={() => setPreviewImageUrl(null)} />}
+      <ActionAnimation type={animationType} onComplete={() => { setAnimationType(null); window.history.replaceState({}, document.title); }} />
     </div>
   );
 };

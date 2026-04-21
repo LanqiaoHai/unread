@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search as SearchIcon, Book as BookIcon, ChevronRight, Ghost, Plus, ExternalLink, Sparkles } from 'lucide-react';
-import { useStore } from '../store/useStore';
 import { searchBooks } from '../lib/bookApi';
 import { ManualAddModal } from '../components/ManualAddModal';
 import type { Book } from '../types';
@@ -12,7 +11,6 @@ export const Search: React.FC = () => {
   const [results, setResults] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
-  const { addAbandonedBook } = useStore();
   const navigate = useNavigate();
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -35,14 +33,7 @@ export const Search: React.FC = () => {
   };
 
   const handleAddManual = (book: Book) => {
-    addAbandonedBook({
-      ...book,
-      abandonedAt: Date.now(),
-      reason: '手动录入',
-      score: 0,
-      progress: '未开始'
-    });
-    navigate('/');
+    navigate('/snapshot', { state: { book } });
   };
 
   return (

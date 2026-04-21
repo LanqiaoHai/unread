@@ -37,7 +37,7 @@ export const useStore = create<UnreadState>()(
         
         if (user) {
           try {
-            const { error } = await supabase.from('books').insert({
+            const { error } = await supabase.from('books').upsert({
               id: book.id,
               uid: user.id,
               title: book.title,
@@ -50,11 +50,12 @@ export const useStore = create<UnreadState>()(
               reason: book.reason,
               score: book.score,
               is_public: book.isPublic ?? false,
-              user_display_name: user.email?.split('@')[0] || '匿名书友'
+              user_display_name: user.user_metadata?.display_name || user.email?.split('@')[0] || '匿名书友',
+              user_avatar: user.user_metadata?.avatar_emoji || '👻'
             });
             if (error) throw error;
           } catch (error) {
-            console.error("Error adding book to Supabase:", error);
+            console.error("Error upserting book to Supabase:", error);
           }
         } else {
           set((state) => ({

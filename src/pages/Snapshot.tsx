@@ -11,11 +11,14 @@ export const Snapshot: React.FC = () => {
   const { addAbandonedBook } = useStore();
   const book = location.state?.book as Book;
 
+  const isEdit = location.state?.isEdit || false;
+  const existingData = location.state?.existingData;
+
   const [step, setStep] = useState(1);
-  const [score, setScore] = useState(0);
-  const [reason, setReason] = useState('');
-  const [progress, setProgress] = useState('');
-  const [isPublic, setIsPublic] = useState(true);
+  const [score, setScore] = useState(existingData?.score || 0);
+  const [reason, setReason] = useState(existingData?.reason || '');
+  const [progress, setProgress] = useState(existingData?.progress || '');
+  const [isPublic, setIsPublic] = useState(existingData?.isPublic ?? true);
   const [isFinishing, setIsFinishing] = useState(false);
 
   useEffect(() => {
@@ -49,7 +52,7 @@ export const Snapshot: React.FC = () => {
     <div className="max-w-xl mx-auto pb-40">
       <header className="mb-14 text-center">
         <h1 className="text-4xl font-black text-slate-900 tracking-tighter mb-4">
-          创建记录
+          {isEdit ? '编辑记录' : '创建记录'}
         </h1>
         <div className="flex items-center justify-center gap-4 text-slate-400">
           <div className={`h-3 w-3 rounded-full ${step >= 1 ? 'bg-brand-yellow' : 'bg-slate-100'}`} />
