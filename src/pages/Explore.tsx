@@ -22,7 +22,7 @@ export const Explore: React.FC = () => {
         <h1 className="text-5xl font-black tracking-tighter mb-4 text-slate-900 uppercase">
           书友 <span className="text-brand-green underline decoration-brand-yellow decoration-8">广场</span>
         </h1>
-        <p className="text-slate-400 font-bold text-lg">看看大家都在“逃避”什么。</p>
+        <p className="text-slate-400 font-bold text-lg">看看大家都放弃了哪些书。</p>
       </header>
 
       {/* Tabs */}
@@ -31,13 +31,13 @@ export const Explore: React.FC = () => {
           onClick={() => setActiveTab('community')}
           className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-[1.5rem] font-black transition-all ${activeTab === 'community' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
         >
-          <Compass className="w-6 h-6" /> 社区流
+          <Compass className="w-6 h-6" /> 社区
         </button>
         <button 
           onClick={() => setActiveTab('me')}
           className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-[1.5rem] font-black transition-all ${activeTab === 'me' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
         >
-          <Ghost className="w-6 h-6" /> 我的动态
+          <Ghost className="w-6 h-6" /> 动态
         </button>
       </div>
 

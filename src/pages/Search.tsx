@@ -67,7 +67,7 @@ export const Search: React.FC = () => {
           className="absolute right-4 top-4 bottom-4 px-10 bg-brand-orange text-white rounded-full font-black flex items-center gap-3 transition-all active:scale-95 btn-bouncy disabled:opacity-50"
         >
           {loading ? <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" /> : <SearchIcon className="w-6 h-6 stroke-[3px]" />}
-          <span className="hidden sm:inline">寻宝</span>
+          <span className="hidden sm:inline">搜索</span>
         </button>
       </form>
 

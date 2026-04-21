@@ -264,7 +264,7 @@ export const Home: React.FC = () => {
               activeTab === tab ? 'text-slate-900' : 'text-slate-300 hover:text-slate-400'
             }`}
           >
-            {tab === 'later' ? '宝贝档案' : '避雷日记'}
+            {tab === 'later' ? '以后再读' : '避雷日记'}
             {activeTab === tab && (
               <motion.div 
                 layoutId="tab-underline" 

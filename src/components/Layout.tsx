@@ -1,8 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { Library, Compass, Plus, Book as BookIcon } from 'lucide-react';
+import { Library, Compass, Plus, BookUser } from 'lucide-react';
+import { SettingsPanel } from '../pages/Home';
+import { supabase } from '../lib/supabase';
+import type { User } from '@supabase/supabase-js';
 
 export const Layout: React.FC = () => {
+  const [showSettings, setShowSettings] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user || null));
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+  }, []);
+
   return (
     <div className="min-h-screen bg-bg-cream text-slate-800 selection:bg-brand-yellow/30">
       {/* Navigation (Mobile Bottom / Desktop Top) */}
@@ -41,10 +52,14 @@ export const Layout: React.FC = () => {
             <Plus className="w-7 h-7 stroke-[3px]" />
           </NavLink>
 
-          {/* Brand Logo - Cartoon Book */}
-          <div className="p-4 text-brand-yellow drop-shadow-md hidden sm:block">
-            <BookIcon className="w-8 h-8 fill-current" />
-          </div>
+          {/* Login Entry - Cartoon Book with User */}
+          <button 
+            onClick={() => setShowSettings(true)}
+            className="p-4 text-brand-yellow drop-shadow-md hidden sm:block hover:scale-110 transition-transform btn-bouncy"
+            title="登录/同步"
+          >
+            <BookUser className="w-8 h-8" />
+          </button>
         </div>
       </nav>
 
@@ -52,6 +67,8 @@ export const Layout: React.FC = () => {
       <main className="max-w-2xl mx-auto px-6 pt-12 pb-32 md:pt-32 md:pb-12">
         <Outlet />
       </main>
+
+      {showSettings && <SettingsPanel user={user} onClose={() => setShowSettings(false)} />}
     </div>
   );
 };
