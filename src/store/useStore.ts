@@ -19,6 +19,8 @@ interface UnreadState {
   fetchPublicBooks: () => Promise<void>;
   toggleLike: (bookId: string) => Promise<void>;
   fetchUserStats: () => Promise<void>;
+  fetchBookComments: (bookId: string) => Promise<any[]>;
+  addComment: (bookId: string, content: string) => Promise<void>;
 }
 
 export const useStore = create<UnreadState>()(
@@ -97,7 +99,20 @@ export const useStore = create<UnreadState>()(
           .eq('is_public', true)
           .order('abandoned_at', { ascending: false });
 
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id;
+
         if (data) {
+          // Fetch current user's likes to determine isLiked status
+          let userLikedIds: string[] = [];
+          if (userId) {
+            const { data: myLikes } = await supabase
+              .from('likes')
+              .select('book_id')
+              .eq('user_id', userId);
+            if (myLikes) userLikedIds = myLikes.map(l => l.book_id);
+          }
+
           const mapped = data.map(b => ({
             ...b,
             id: b.id,
@@ -110,10 +125,35 @@ export const useStore = create<UnreadState>()(
             isPublic: b.is_public,
             username: b.user_display_name,
             likesCount: b.likes?.[0]?.count || 0,
-            commentsCount: b.comments?.[0]?.count || 0
+            commentsCount: b.comments?.[0]?.count || 0,
+            isLiked: userLikedIds.includes(b.id)
           }));
           set({ publicBooks: mapped });
         }
+      },
+
+      fetchBookComments: async (bookId: string) => {
+        const { data } = await supabase
+          .from('comments')
+          .select('*')
+          .eq('book_id', bookId)
+          .order('created_at', { ascending: true });
+        return data || [];
+      },
+
+      addComment: async (bookId: string, content: string) => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        const { error } = await supabase.from('comments').insert({
+          book_id: bookId,
+          user_id: session.user.id,
+          user_display_name: session.user.user_metadata?.display_name || '匿名书友',
+          content: content
+        });
+
+        if (error) throw error;
+        get().fetchPublicBooks(); // Refresh counts
       },
 
       toggleLike: async (bookId) => {

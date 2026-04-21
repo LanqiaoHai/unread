@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search as SearchIcon, Book as BookIcon, ChevronRight, Ghost, Plus, ExternalLink, Sparkles } from 'lucide-react';
+import { Search as SearchIcon, Book as BookIcon, ChevronRight, Plus, ExternalLink, Sparkles } from 'lucide-react';
 import { searchBooks } from '../lib/bookApi';
 import { ManualAddModal } from '../components/ManualAddModal';
 import type { Book } from '../types';
@@ -65,25 +65,26 @@ export const Search: React.FC = () => {
       {/* Manual Search Guidance */}
       {!loading && query && results.length === 0 && (
         <div className="mb-14 p-10 glass-card border-slate-900 bg-white text-center">
-          <Ghost className="w-16 h-16 text-slate-100 mx-auto mb-6" />
-          <h3 className="text-2xl font-black text-slate-800 mb-4">没找到这本书？</h3>
+          <Sparkles className="w-16 h-16 text-brand-yellow mx-auto mb-6 animate-pulse" />
+          <h3 className="text-2xl font-black text-slate-800 mb-4">API 走神没找到？</h3>
           <p className="text-slate-400 mb-8 font-bold leading-relaxed">
-            API 偶尔会调皮，您可以试试去百度或豆瓣搜索：
+            建议点击下方按钮去豆瓣查找，查到书名和封面后，<br/>
+            再回到这里点击“手动录入”即可完美存入。
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
-              href={`https://www.baidu.com/s?wd=${encodeURIComponent(query + ' 豆瓣 图书')}`}
+              href={`https://www.douban.com/search?q=${encodeURIComponent(query)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-8 py-4 bg-slate-100 hover:bg-brand-blue hover:text-white rounded-2xl font-black transition-all btn-bouncy flex items-center gap-2"
+              className="px-8 py-4 bg-brand-green/10 text-brand-green border-4 border-brand-green/20 hover:bg-brand-green hover:text-white rounded-2xl font-black transition-all btn-bouncy flex items-center gap-2"
             >
-              <ExternalLink className="w-5 h-5" /> 百度搜索
+              <ExternalLink className="w-5 h-5" /> 在豆瓣中搜索
             </a>
             <button
               onClick={() => setIsManualModalOpen(true)}
-              className="px-8 py-4 cute-gradient-yellow text-slate-900 rounded-2xl font-black transition-all btn-bouncy flex items-center gap-2"
+              className="px-8 py-4 cute-gradient-yellow text-slate-900 rounded-2xl font-black transition-all border-4 border-slate-900 shadow-[4px_4px_0_0_rgba(0,0,0,1)] flex items-center gap-2"
             >
-              <Plus className="w-5 h-5" /> 手动录入
+              <Plus className="w-5 h-5" /> 立即手动录入
             </button>
           </div>
         </div>

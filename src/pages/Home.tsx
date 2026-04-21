@@ -26,7 +26,7 @@ const DashboardCard: React.FC<{ label: string; value: number | string; icon: Rea
         {icon}
       </div>
       <span className="text-3xl font-black tracking-tighter mb-1 text-slate-900">{value}</span>
-      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{label}</span>
+      <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{label}</span>
     </div>
   </motion.div>
 );
@@ -280,21 +280,20 @@ export const Home: React.FC = () => {
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-2xl mx-auto pb-40">
-      <header className="mb-14 flex justify-between items-end">
-        <div>
-          <h1 className="text-5xl font-black tracking-tighter mb-2 text-slate-900 uppercase">
-            我的 <span className="text-brand-orange underline decoration-brand-yellow decoration-8">书架</span>
-          </h1>
-        </div>
-        <div className="flex gap-4">
+      <header className="mb-14 relative flex items-center justify-center">
+        <h1 className="text-4xl sm:text-5xl font-black tracking-tighter text-slate-900 uppercase text-center">
+          我的 <span className="text-brand-orange underline decoration-brand-yellow decoration-8">书架</span>
+        </h1>
+        
+        <div className="absolute right-0 flex gap-3">
           <button 
             onClick={() => { setIsSelectionMode(!isSelectionMode); setSelectedIds(new Set()); }}
-            className={`p-4 glass-card border-slate-900 transition-all btn-bouncy ${isSelectionMode ? 'bg-brand-orange text-white' : 'bg-white text-slate-400 hover:text-slate-600'}`}
+            className={`p-3 sm:p-4 glass-card border-slate-900 transition-all btn-bouncy ${isSelectionMode ? 'bg-brand-orange text-white' : 'bg-white text-slate-400 hover:text-slate-600'}`}
           >
-            <Archive className="w-7 h-7" />
+            <Archive className="w-6 h-6 sm:w-7 sm:h-7" />
           </button>
-          <button onClick={() => setShowSettings(true)} className="p-4 glass-card border-slate-900 bg-white text-slate-400 hover:text-slate-600 transition-all btn-bouncy">
-            <Settings className="w-7 h-7" />
+          <button onClick={() => setShowSettings(true)} className="p-3 sm:p-4 glass-card border-slate-900 bg-white text-slate-400 hover:text-slate-600 transition-all btn-bouncy">
+            <Settings className="w-6 h-6 sm:w-7 sm:h-7" />
           </button>
         </div>
       </header>
