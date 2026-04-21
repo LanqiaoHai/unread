@@ -12,4 +12,9 @@ export interface AbandonedBook extends Book {
   progress: string; // e.g. "P.150" or "30%"
   reason: string;
   score: number; // -5 to 5, excluding 0
+  isPublic?: boolean;
+  likesCount?: number;
+  commentsCount?: number;
+  username?: string; // Cache the uploader's name
 }
+

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '../store/useStore';
-import { Star, Skull, Trash2, Calendar, BookOpen, Settings, CheckCircle2, Loader2, Download, CheckSquare, Square, X, Archive, DownloadCloud } from 'lucide-react';
+import { Star, Skull, Trash2, Calendar, BookOpen, Settings, CheckCircle2, Loader2, Download, CheckSquare, Square, X, Archive, DownloadCloud, Zap, TrendingUp, Heart, Bookmark, MessageCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { toPng } from 'html-to-image';
 import { saveAs } from 'file-saver';
@@ -12,6 +12,23 @@ import type { User } from '@supabase/supabase-js';
 const JSZip = (JSZipLib as any).default || JSZipLib;
 
 // --- Components ---
+
+const DashboardCard: React.FC<{ label: string; value: number | string; icon: React.ReactNode; color: string }> = ({ label, value, icon, color }) => (
+  <motion.div 
+    whileHover={{ y: -5, scale: 1.02 }}
+    className="clay-card p-6 rounded-[2rem] flex flex-col items-center justify-center relative overflow-hidden group border-slate-900/5 bg-white"
+  >
+    <div className={`absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity bg-gradient-to-br ${color}`} />
+    <div className="z-10 flex flex-col items-center text-center">
+      <div className="mb-3 p-3 rounded-2xl bg-slate-50 text-slate-800 group-hover:scale-110 transition-transform border-2 border-slate-900/5">
+        {icon}
+      </div>
+      <span className="text-3xl font-black tracking-tighter mb-1 text-slate-900">{value}</span>
+      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{label}</span>
+    </div>
+  </motion.div>
+);
+
 
 const ImagePreviewModal: React.FC<{ imageUrl: string; onClose: () => void }> = ({ imageUrl, onClose }) => {
   return (
@@ -67,25 +84,29 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-300">
-      <div className="bg-white max-w-md w-full rounded-3xl p-8 shadow-xl relative mt-[-10vh]">
-        <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">关闭</button>
-        <h2 className="text-2xl font-bold text-slate-800 mb-2 flex items-center gap-2"><Settings className="w-6 h-6" /> 设置</h2>
-        <p className="text-sm text-slate-500 mb-8">绑定邮箱以在不同设备间同步你的弃读档案。</p>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-xl z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
+      <div className="glass-card max-w-md w-full rounded-[3rem] p-10 shadow-2xl relative border-white/10">
+        <button onClick={onClose} className="absolute top-8 right-8 text-white/30 hover:text-white transition-colors">
+          <X className="w-6 h-6" />
+        </button>
+        <h2 className="text-3xl font-black text-white mb-2 flex items-center gap-3">
+          <Settings className="w-8 h-8 neon-text-blue" /> 同步
+        </h2>
+        <p className="text-sm text-white/40 mb-8">绑定账号，让你的“逃跑计划”随身而行。</p>
 
         {!isAnonymous || success ? (
-          <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-2xl flex flex-col items-center text-center">
-            <CheckCircle2 className="w-12 h-12 text-emerald-500 mb-3" />
-            <h3 className="font-bold text-emerald-800 mb-1">账号已就位</h3>
-            <p className="text-sm text-emerald-600 font-mono text-[10px] mt-2">{user?.email}</p>
+          <div className="bg-emerald-500/10 border border-emerald-500/20 p-8 rounded-[2rem] flex flex-col items-center text-center">
+            <CheckCircle2 className="w-16 h-16 text-emerald-400 mb-4 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
+            <h3 className="font-black text-white mb-1">云端就位</h3>
+            <p className="text-xs text-white/40 font-mono mt-2 lowercase">{user?.email}</p>
           </div>
         ) : (
           <form onSubmit={handleLinkAccount} className="space-y-4">
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-50 border border-slate-200 px-5 py-3 rounded-xl outline-none" placeholder="邮箱" />
-            <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-slate-50 border border-slate-200 px-5 py-3 rounded-xl outline-none" placeholder="密码" />
-            {formError && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-xl">{formError}</p>}
-            <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg">
-              {loading ? "处理中..." : "开启云同步"}
+            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 px-6 py-4 rounded-2xl outline-none focus:border-neon-blue focus:ring-1 focus:ring-neon-blue/50 transition-all text-white" placeholder="邮箱" />
+            <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 px-6 py-4 rounded-2xl outline-none focus:border-neon-blue focus:ring-1 focus:ring-neon-blue/50 transition-all text-white" placeholder="密码" />
+            {formError && <p className="text-neon-pink text-xs bg-neon-pink/5 p-4 rounded-2xl border border-neon-pink/10">{formError}</p>}
+            <button type="submit" disabled={loading} className="w-full dopamine-gradient text-white font-black py-5 rounded-2xl shadow-xl shadow-neon-pink/20 hover:scale-[1.02] active:scale-95 transition-all mt-4 tracking-widest">
+              {loading ? "同步中..." : "开启多端同步"}
             </button>
           </form>
         )}
@@ -94,15 +115,15 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
   );
 };
 
+
 // --- Main Page ---
 
 export const Home: React.FC = () => {
-  const { abandonedBooks, removeAbandonedBook } = useStore();
+  const { abandonedBooks, removeAbandonedBook, stats: storeStats, fetchUserStats } = useStore();
   const [activeTab, setActiveTab] = useState<'later' | 'avoid'>('later');
   const [showSettings, setShowSettings] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   
-  // Batch Export States
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
@@ -110,8 +131,12 @@ export const Home: React.FC = () => {
 
   useEffect(() => {
     supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user || null));
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
-  }, []);
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      if (user) fetchUserStats();
+    });
+  }, [fetchUserStats]);
+
 
   const displayedBooks = abandonedBooks.filter((b) => 
     activeTab === 'later' ? b.score > 0 : b.score < 0
@@ -125,9 +150,9 @@ export const Home: React.FC = () => {
     const absScore = Math.abs(score);
     const Icon = score > 0 ? Star : Skull;
     return (
-      <div className="flex gap-0.5">
+      <div className="flex gap-1">
         {[...Array(5)].map((_, i) => (
-          <Icon key={i} className={`w-3.5 h-3.5 ${i < absScore ? (score > 0 ? 'text-amber-400 fill-amber-400' : 'text-slate-500 fill-slate-500') : 'text-slate-100 fill-slate-100'}`} />
+          <Icon key={i} className={`w-5 h-5 ${i < absScore ? (score > 0 ? 'text-brand-yellow fill-brand-yellow' : 'text-slate-400 fill-slate-400') : 'text-slate-100 fill-slate-100'}`} />
         ))}
       </div>
     );
@@ -147,12 +172,13 @@ export const Home: React.FC = () => {
     if (!node) return null;
     try {
       return await toPng(node, {
-        backgroundColor: '#ffffff',
-        style: { borderRadius: '24px' },
+        backgroundColor: '#FFFDF0',
+        style: { borderRadius: '48px' },
         pixelRatio: 2,
+        cacheBust: true,
       });
     } catch (e) {
-      console.error(e);
+      console.error('Export failed', e);
       return null;
     }
   };
@@ -166,19 +192,18 @@ export const Home: React.FC = () => {
     if (selectedIds.size === 0) return;
     setIsExporting(true);
     const zip = new JSZip();
-    
     try {
       for (const id of selectedIds) {
         const dataUrl = await captureCard(id);
         if (dataUrl) {
-          const base64Data = dataUrl.replace(/^data:image\/(png|jpg);base64,/, "");
+          const base64Data = dataUrl.replace(/^data:image\/[a-z]+;base64,/, "");
           const book = abandonedBooks.find(b => b.id === id);
           const name = book ? `Unread-${book.title}.png` : `Card-${id}.png`;
           zip.file(name, base64Data, { base64: true });
         }
       }
       const content = await zip.generateAsync({ type: "blob" });
-      saveAs(content, `Unread-Batch-${Date.now()}.zip`);
+      saveAs(content, `我的书单-${Date.now()}.zip`);
       setIsSelectionMode(false);
       setSelectedIds(new Set());
     } catch (err) {
@@ -188,128 +213,166 @@ export const Home: React.FC = () => {
     }
   };
 
+  const stats = {
+    total: abandonedBooks.length,
+    later: abandonedBooks.filter(b => b.score > 0).length,
+    avoid: abandonedBooks.filter(b => b.score < 0).length,
+    likes: storeStats.likes,
+    favs: storeStats.favs,
+    comments: storeStats.comments
+  };
+
+
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto">
-      <header className="mb-12 flex justify-between items-center">
+    <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-2xl mx-auto pb-40">
+      <header className="mb-14 flex justify-between items-end">
         <div>
-          <h1 className="text-4xl font-serif font-medium tracking-tight mb-2 text-slate-800">我的书库</h1>
-          <p className="text-slate-400 font-light italic">"{displayedBooks.length} 份被妥善安置的灵魂"</p>
+          <h1 className="text-5xl font-black tracking-tighter mb-2 text-slate-900 uppercase">
+            我的 <span className="text-brand-orange underline decoration-brand-yellow decoration-8">书架</span>
+          </h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-4">
           <button 
             onClick={() => { setIsSelectionMode(!isSelectionMode); setSelectedIds(new Set()); }}
-            className={`p-3 rounded-2xl transition-all ${isSelectionMode ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-slate-800 hover:bg-white'}`}
-            title="批量管理"
+            className={`p-4 glass-card border-slate-900 transition-all btn-bouncy ${isSelectionMode ? 'bg-brand-orange text-white' : 'bg-white text-slate-400 hover:text-slate-600'}`}
           >
-            <Archive className="w-5 h-5" />
+            <Archive className="w-7 h-7" />
           </button>
-          <button onClick={() => setShowSettings(true)} className="p-3 text-slate-400 hover:text-slate-800 hover:bg-white rounded-full transition-all">
-            <Settings className="w-5 h-5" />
+          <button onClick={() => setShowSettings(true)} className="p-4 glass-card border-slate-900 bg-white text-slate-400 hover:text-slate-600 transition-all btn-bouncy">
+            <Settings className="w-7 h-7" />
           </button>
         </div>
       </header>
 
+      {/* Stats Dashboard */}
+      <section className="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-14">
+        <DashboardCard label="弃读书目" value={stats.total} icon={<Zap className="w-6 h-6 text-brand-yellow" />} color="from-brand-yellow/30" />
+        <DashboardCard label="有空再读" value={stats.later} icon={<TrendingUp className="w-6 h-6 text-brand-blue" />} color="from-brand-blue/30" />
+        <DashboardCard label="避雷清单" value={stats.avoid} icon={<Skull className="w-6 h-6 text-brand-orange" />} color="from-brand-orange/30" />
+        <DashboardCard label="收到点赞" value={stats.likes} icon={<Heart className="w-5 h-5 text-red-400" />} color="from-red-100" />
+        <DashboardCard label="被收藏" value={stats.favs} icon={<Bookmark className="w-5 h-5 text-brand-blue" />} color="from-blue-100" />
+        <DashboardCard label="评论交流" value={stats.comments} icon={<MessageCircle className="w-5 h-5 text-brand-green" />} color="from-brand-green/20" />
+      </section>
+
       {/* Tabs */}
-      <div className="flex gap-8 mb-8 border-b border-slate-100">
+      <div className="flex gap-10 mb-10 border-b-4 border-slate-900/5 px-2">
         {['later', 'avoid'].map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab as any)}
-            className={`pb-4 px-2 text-sm font-bold tracking-widest uppercase transition-all relative ${
-              activeTab === tab ? 'text-blue-600' : 'text-slate-300 hover:text-slate-500'
+            className={`pb-5 px-1 text-lg font-black tracking-widest transition-all relative ${
+              activeTab === tab ? 'text-slate-900' : 'text-slate-300 hover:text-slate-400'
             }`}
           >
-            {tab === 'later' ? '有空再读' : '避雷清单'}
-            {activeTab === tab && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600" />}
+            {tab === 'later' ? '宝贝档案' : '避雷日记'}
+            {activeTab === tab && (
+              <motion.div 
+                layoutId="tab-underline" 
+                className={`absolute bottom-[-4px] left-0 right-0 h-2 rounded-full ${tab === 'later' ? 'bg-brand-blue' : 'bg-brand-orange'}`} 
+              />
+            )}
           </button>
         ))}
       </div>
 
       {displayedBooks.length === 0 ? (
-        <div className="py-24 text-center opacity-20">
-          <BookOpen className="w-16 h-16 mx-auto mb-4" />
-          <p className="font-light tracking-[0.2em]">这里空无一物</p>
+        <div className="py-32 text-center opacity-30 flex flex-col items-center">
+          <BookOpen className="w-20 h-20 mb-6 text-slate-200" />
+          <p className="text-xl font-black tracking-widest">这里空空如也，快去寻宝吧！</p>
         </div>
       ) : (
-        <div className="grid gap-6 pb-32">
+        <div className="grid gap-10">
           {displayedBooks.map((book) => (
             <div
               key={book.id + book.abandonedAt}
               id={`book-card-${book.id}`}
               onClick={() => isSelectionMode && toggleSelection(book.id)}
-              className={`group bg-white p-6 rounded-[2.5rem] border transition-all duration-500 relative cursor-pointer ${
+              className={`group glass-card p-10 border-slate-900 transition-all duration-500 relative cursor-pointer btn-bouncy ${
                 isSelectionMode && selectedIds.has(book.id) 
-                  ? 'border-blue-500 shadow-xl bg-blue-50/20 scale-[0.98]' 
-                  : 'border-slate-50 shadow-sm hover:shadow-xl hover:border-slate-100'
+                  ? 'bg-brand-yellow/20 scale-[0.98]' 
+                  : 'bg-white hover:rotate-1'
               }`}
             >
-              {/* Selection Overlay */}
               {isSelectionMode && (
-                <div className="absolute top-6 right-6 z-10">
-                  {selectedIds.has(book.id) ? <CheckSquare className="w-6 h-6 text-blue-600" /> : <Square className="w-6 h-6 text-slate-200" />}
+                <div className="absolute top-8 right-8 z-10 scale-125">
+                  {selectedIds.has(book.id) 
+                    ? <CheckSquare className="w-8 h-8 text-brand-orange" /> 
+                    : <Square className="w-8 h-8 text-slate-200" />
+                  }
                 </div>
               )}
 
-              <div className="flex gap-6">
+              <div className="flex gap-10">
                 <div className="shrink-0 relative">
                   {book.thumbnail ? (
-                    <img src={book.thumbnail} alt={book.title} className="w-24 h-36 object-cover rounded-2xl shadow-md group-hover:scale-105 transition-transform duration-500" />
+                    <img 
+                      src={book.thumbnail} 
+                      alt={book.title} 
+                      className="w-32 h-48 object-cover rounded-[2rem] border-4 border-slate-900 shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] group-hover:scale-105 transition-transform duration-500" 
+                    />
                   ) : (
-                    <div className="w-24 h-36 bg-slate-50 flex items-center justify-center rounded-2xl border border-slate-100"><BookOpen className="w-10 h-10 text-slate-200" /></div>
+                    <div className="w-32 h-48 bg-slate-50 flex items-center justify-center rounded-[2rem] border-4 border-slate-900 shadow-[8px_8px_0_0_rgba(0,0,0,0.1)]">
+                      <BookOpen className="w-16 h-16 text-slate-200" />
+                    </div>
                   )}
                 </div>
                 
                 <div className="flex-1 min-w-0 flex flex-col">
                   {!isSelectionMode && (
-                    <div className="flex justify-end mb-2 -mr-2">
-                       <button onClick={(e) => { e.stopPropagation(); handleExportSingle(book.id); }} className="p-2 text-slate-200 hover:text-blue-500"><Download className="w-4 h-4" /></button>
-                       <button onClick={(e) => { e.stopPropagation(); removeAbandonedBook(book.id); }} className="p-2 text-slate-200 hover:text-red-400"><Trash2 className="w-4 h-4" /></button>
+                    <div className="flex justify-end gap-3 mb-2 -mt-4">
+                       <button onClick={(e) => { e.stopPropagation(); handleExportSingle(book.id); }} className="p-3 bg-brand-blue/10 hover:bg-brand-blue text-brand-blue hover:text-white rounded-2xl transition-all"><Download className="w-6 h-6" /></button>
+                       <button onClick={(e) => { e.stopPropagation(); removeAbandonedBook(book.id); }} className="p-3 bg-brand-red/10 hover:bg-brand-red text-brand-red hover:text-white rounded-2xl transition-all"><Trash2 className="w-6 h-6" /></button>
                     </div>
                   )}
                   
-                  <h3 className="text-xl font-bold truncate mb-1 text-slate-800">{book.title}</h3>
-                  <p className="text-sm text-slate-400 mb-2 font-light">{book.authors?.join(', ') || '未知作者'}</p>
+                  <h3 className="text-3xl font-black truncate mb-2 text-slate-900 pr-10">{book.title}</h3>
+                  <p className="text-base text-slate-400 mb-6 font-bold">{book.authors?.join(', ') || '未知作者'}</p>
                   
-                  {renderRating(book.score)}
+                  <div className="mb-6">
+                    {renderRating(book.score)}
+                  </div>
                   
-                  <div className="mt-auto pt-4 flex items-center gap-3 text-[10px] text-slate-300 font-bold tracking-tighter uppercase">
-                    <Calendar className="w-3 h-3" />
+                  <div className="mt-auto pt-6 flex flex-wrap items-center gap-4 text-xs font-black tracking-widest text-slate-300 uppercase italic">
+                    <Calendar className="w-4 h-4" />
                     <span>{formatDate(book.abandonedAt)}</span>
-                    <span className="opacity-30">/</span>
-                    <span>进度 {book.progress || 'N/A'}</span>
+                    <span className="opacity-40">●</span>
+                    <span className="text-brand-blue">进度: {book.progress || '未记录'}</span>
                   </div>
                 </div>
               </div>
               
-              <div className="mt-6 p-5 bg-slate-50/50 rounded-[1.5rem] border border-slate-50">
-                <p className="text-xs text-slate-500 leading-relaxed font-light italic">"{book.reason || '无声的告别。'}"</p>
+              <div className="mt-10 p-8 bg-bg-cream rounded-[2.5rem] border-4 border-slate-900 border-dashed relative">
+                <div className="absolute -top-6 -left-2 bg-brand-yellow text-slate-900 text-[10px] font-black px-4 py-2 rounded-full border-2 border-slate-900 uppercase tracking-widest">WHY?</div>
+                <p className="text-lg text-slate-800 leading-relaxed font-bold italic opacity-90">
+                  "{book.reason || '一段无言的心路历程。'}"
+                </p>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Batch Actions Bar */}
+      {/* Batch Export Bar */}
       {isSelectionMode && (
         <motion.div 
-          initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}
-          className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 px-8 py-5 rounded-full shadow-2xl flex items-center gap-6 z-[100] min-w-[320px]"
+          initial={{ y: 150, x: '-50%' }} animate={{ y: 0, x: '-50%' }} exit={{ y: 150, x: '-50%' }}
+          className="fixed bottom-10 left-1/2 glass-card border-slate-900 border-4 px-12 py-8 rounded-full shadow-[0_20px_0_0_rgba(0,0,0,0.1)] flex items-center gap-10 z-[100] min-w-[450px]"
         >
-          <div className="text-white">
-            <span className="text-xs text-slate-400 uppercase tracking-widest block">已选择</span>
-            <span className="text-xl font-bold">{selectedIds.size} 项记录</span>
+          <div>
+            <span className="text-xs text-slate-400 uppercase tracking-widest block font-black mb-1">已选宝贝</span>
+            <span className="text-4xl font-black text-brand-orange leading-none">{selectedIds.size}</span>
           </div>
-          <div className="h-8 w-px bg-slate-700 mx-2" />
-          <div className="flex gap-3">
+          <div className="h-14 w-1 bg-slate-100 rounded-full mx-2" />
+          <div className="flex gap-6">
             <button 
               disabled={selectedIds.size === 0 || isExporting}
               onClick={handleBatchExport}
-              className="bg-blue-600 hover:bg-blue-500 disabled:opacity-30 text-white h-12 px-6 rounded-full font-bold flex items-center gap-2 transition-all active:scale-95"
+              className="cute-gradient-yellow hover:brightness-110 disabled:opacity-30 text-slate-900 h-20 px-12 rounded-full font-black flex items-center gap-4 transition-all btn-bouncy shadow-lg tracking-widest"
             >
-              {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <DownloadCloud className="w-5 h-5" />}
-              打包导出
+              {isExporting ? <Loader2 className="w-7 h-7 animate-spin" /> : <DownloadCloud className="w-7 h-7" />}
+              打包下载
             </button>
-            <button onClick={() => setIsSelectionMode(false)} className="w-12 h-12 flex items-center justify-center bg-slate-800 text-white rounded-full hover:bg-slate-700 transition-all"><X className="w-5 h-5" /></button>
+            <button onClick={() => setIsSelectionMode(false)} className="w-20 h-20 flex items-center justify-center bg-slate-100 text-slate-400 rounded-full hover:bg-slate-200 transition-all btn-bouncy"><X className="w-10 h-10" /></button>
           </div>
         </motion.div>
       )}

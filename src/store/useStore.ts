@@ -5,18 +5,29 @@ import { supabase } from '../lib/supabase';
 
 interface UnreadState {
   abandonedBooks: AbandonedBook[];
+  publicBooks: AbandonedBook[];
   isSyncing: boolean;
+  stats: {
+    likes: number;
+    favs: number;
+    comments: number;
+  };
   addAbandonedBook: (book: AbandonedBook) => Promise<void>;
   removeAbandonedBook: (id: string) => Promise<void>;
   setAbandonedBooks: (books: AbandonedBook[]) => void;
   syncFromLocalStorage: () => Promise<void>;
+  fetchPublicBooks: () => Promise<void>;
+  toggleLike: (bookId: string) => Promise<void>;
+  fetchUserStats: () => Promise<void>;
 }
 
 export const useStore = create<UnreadState>()(
   persist(
     (set, get) => ({
       abandonedBooks: [],
+      publicBooks: [],
       isSyncing: false,
+      stats: { likes: 0, favs: 0, comments: 0 },
       
       setAbandonedBooks: (books) => set({ abandonedBooks: books }),
 
@@ -37,7 +48,9 @@ export const useStore = create<UnreadState>()(
               abandoned_at: book.abandonedAt,
               progress: book.progress,
               reason: book.reason,
-              score: book.score
+              score: book.score,
+              is_public: book.isPublic ?? false,
+              user_display_name: user.email?.split('@')[0] || '匿名书友'
             });
             if (error) throw error;
           } catch (error) {
@@ -72,10 +85,78 @@ export const useStore = create<UnreadState>()(
         }
       },
 
+      fetchPublicBooks: async () => {
+        const { data, error } = await supabase
+          .from('books')
+          .select(`
+            *,
+            likes:likes(count),
+            comments:comments(count)
+          `)
+          .eq('is_public', true)
+          .order('abandoned_at', { ascending: false });
+
+        if (data) {
+          const mapped = data.map(b => ({
+            ...b,
+            id: b.id,
+            title: b.title,
+            authors: b.authors,
+            thumbnail: b.thumbnail,
+            abandonedAt: b.abandoned_at,
+            score: b.score,
+            reason: b.reason,
+            isPublic: b.is_public,
+            username: b.user_display_name,
+            likesCount: b.likes?.[0]?.count || 0,
+            commentsCount: b.comments?.[0]?.count || 0
+          }));
+          set({ publicBooks: mapped });
+        }
+      },
+
+      toggleLike: async (bookId) => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        // Check if already liked
+        const { data: existing } = await supabase
+          .from('likes')
+          .select('*')
+          .eq('book_id', bookId)
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+
+        if (existing) {
+          await supabase.from('likes').delete().eq('id', existing.id);
+        } else {
+          await supabase.from('likes').insert({ book_id: bookId, user_id: session.user.id });
+        }
+        
+        get().fetchPublicBooks(); // Refresh
+      },
+
+      fetchUserStats: async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        try {
+          // Simplistic counts for now: get all likes on user's public books
+          const { data: myBooks } = await supabase.from('books').select('id').eq('uid', session.user.id).eq('is_public', true);
+          if (myBooks && myBooks.length > 0) {
+            const bookIds = myBooks.map(b => b.id);
+            const { count: likes } = await supabase.from('likes').select('*', { count: 'exact', head: true }).in('book_id', bookIds);
+            const { count: comments } = await supabase.from('comments').select('*', { count: 'exact', head: true }).in('book_id', bookIds);
+            set({ stats: { likes: likes || 0, favs: 0, comments: comments || 0 } });
+          }
+        } catch (e) { console.error(e); }
+      },
+
       syncFromLocalStorage: async () => {
         const { data: { session } } = await supabase.auth.getSession();
         const user = session?.user;
         const { abandonedBooks } = get();
+
 
         if (user && abandonedBooks.length > 0) {
           try {

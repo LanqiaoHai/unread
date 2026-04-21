@@ -4,6 +4,7 @@ import { Layout } from './components/Layout';
 import { Home } from './pages/Home';
 import { Search } from './pages/Search';
 import { Snapshot } from './pages/Snapshot';
+import { Explore } from './pages/Explore';
 import { supabase } from './lib/supabase';
 import { useStore, startSupabaseSync } from './store/useStore';
 import './App.css';
@@ -36,8 +37,6 @@ const App: React.FC = () => {
         // Try to sync existing local data
         syncFromLocalStorage();
 
-        // Note: In Supabase, we might need a different way to handle cleanup if needed,
-        // but for now we follow the same pattern.
         return () => {
           unsubscribeSupabase();
         };
@@ -54,10 +53,12 @@ const App: React.FC = () => {
           <Route index element={<Home />} />
           <Route path="search" element={<Search />} />
           <Route path="snapshot" element={<Snapshot />} />
+          <Route path="explore" element={<Explore />} />
         </Route>
       </Routes>
     </BrowserRouter>
   );
 };
+
 
 export default App;
