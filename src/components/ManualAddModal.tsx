@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { X, BookPlus, Upload, Image as ImageIcon } from 'lucide-react';
+import { X, BookPlus, Upload } from 'lucide-react';
 import type { Book } from '../types';
 
 interface ManualAddModalProps {

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Heart, MessageCircle, Share2, Sparkles, User, Compass, Ghost, Quote, Star, Loader2 } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Sparkles, Compass, Ghost, Quote, Star, Loader2 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 export const Explore: React.FC = () => {

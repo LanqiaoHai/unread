@@ -86,7 +86,7 @@ export const useStore = create<UnreadState>()(
       },
 
       fetchPublicBooks: async () => {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('books')
           .select(`
             *,

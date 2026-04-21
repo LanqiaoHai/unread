@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search as SearchIcon, Book as BookIcon, ChevronRight, Ghost, Plus, ExternalLink, Sparkles, BookPlus } from 'lucide-react';
+import { Search as SearchIcon, Book as BookIcon, ChevronRight, Ghost, Plus, ExternalLink, Sparkles } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { searchBooks } from '../lib/bookApi';
 import { ManualAddModal } from '../components/ManualAddModal';
@@ -38,8 +38,9 @@ export const Search: React.FC = () => {
     addAbandonedBook({
       ...book,
       abandonedAt: Date.now(),
-      reason: '',
+      reason: '手动录入',
       score: 0,
+      progress: '未开始'
     });
     navigate('/');
   };
