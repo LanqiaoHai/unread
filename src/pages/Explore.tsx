@@ -24,6 +24,32 @@ export const Explore: React.FC = () => {
   // Toast state for share
   const [showToast, setShowToast] = useState(false);
 
+  // Red dot for 'Me' tab
+  const [hasUnread, setHasUnread] = useState(false);
+
+  useEffect(() => {
+    // Basic logic: if total likes/comments on user's books increased since last visit
+    if (activeTab === 'community' && publicBooks.length > 0 && currentUser) {
+      const myBooks = publicBooks.filter(b => b.uid === currentUser);
+      const currentInteractionSum = myBooks.reduce((acc, b) => acc + (b.likesCount || 0) + (b.commentsCount || 0), 0);
+      const lastSum = parseInt(localStorage.getItem(`unread_last_interactions_${currentUser}`) || '0');
+      
+      if (currentInteractionSum > lastSum) {
+        setHasUnread(true);
+      }
+    }
+  }, [publicBooks, activeTab, currentUser]);
+
+  const handleTabChange = (tab: 'community' | 'me') => {
+    setActiveTab(tab);
+    if (tab === 'me' && currentUser) {
+      setHasUnread(false);
+      const myBooks = publicBooks.filter(b => b.uid === currentUser);
+      const currentInteractionSum = myBooks.reduce((acc, b) => acc + (b.likesCount || 0) + (b.commentsCount || 0), 0);
+      localStorage.setItem(`unread_last_interactions_${currentUser}`, currentInteractionSum.toString());
+    }
+  };
+
   useEffect(() => {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -111,16 +137,20 @@ export const Explore: React.FC = () => {
       {/* Tabs */}
       <div className="flex bg-slate-100 p-2 rounded-[2rem] mb-12 border-4 border-slate-900 shadow-[4px_4px_0_0_rgba(0,0,0,0.1)] overflow-hidden">
         <button 
-          onClick={() => setActiveTab('community')}
+          onClick={() => handleTabChange('community')}
           className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-[1.5rem] font-black transition-all ${activeTab === 'community' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
         >
           <Compass className="w-6 h-6" /> 社区大家庭
         </button>
         <button 
-          onClick={() => setActiveTab('me')}
-          className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-[1.5rem] font-black transition-all ${activeTab === 'me' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+          onClick={() => handleTabChange('me')}
+          className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-[1.5rem] font-black transition-all relative ${activeTab === 'me' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
         >
-          <Ghost className="w-6 h-6" /> 我的动态
+          <Ghost className="w-6 h-6" /> 
+          我的动态
+          {hasUnread && (
+            <span className="absolute top-3 right-8 w-3 h-3 bg-red-500 rounded-full border-2 border-white animate-pulse" />
+          )}
         </button>
       </div>
 
