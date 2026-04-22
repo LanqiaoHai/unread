@@ -280,12 +280,7 @@ export const Home: React.FC = () => {
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-2xl mx-auto pb-40 relative">
-      <button 
-        onClick={() => setShowSettings(true)} 
-        className="absolute -top-12 right-0 p-3 bg-white border-4 border-slate-900 rounded-2xl text-slate-400 hover:text-slate-900 transition-all btn-bouncy z-50 shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
-      >
-        <Settings className="w-6 h-6" />
-      </button>
+      {/* Settings button removed here as it will be moved to the top in Layout.tsx */}
 
       <header className="mb-14 relative flex items-center justify-center">
         <h1 className="text-4xl sm:text-5xl font-black tracking-tighter text-slate-900 uppercase text-center">
@@ -337,7 +332,7 @@ export const Home: React.FC = () => {
       {displayedBooks.length === 0 ? (
         <div className="py-32 text-center opacity-30 flex flex-col items-center">
           <BookOpen className="w-20 h-20 mb-6 text-slate-200" />
-          <p className="text-xl font-black tracking-widest">这里空空如也，快去寻宝吧！</p>
+          <p className="text-xl font-black tracking-widest">这里空空如也，快去寻书吧！</p>
         </div>
       ) : (
         <div className="grid gap-10">

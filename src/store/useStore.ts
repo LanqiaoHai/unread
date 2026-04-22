@@ -80,6 +80,11 @@ export const useStore = create<UnreadState>()(
               .eq('id', id)
               .eq('uid', user.id);
             if (error) throw error;
+            
+            // Immediately update local state for responsiveness
+            set((state) => ({
+              abandonedBooks: state.abandonedBooks.filter((b) => b.id !== id),
+            }));
           } catch (error) {
             console.error("Error removing book from Supabase:", error);
           }
@@ -155,7 +160,9 @@ export const useStore = create<UnreadState>()(
         });
 
         if (error) throw error;
-        get().fetchPublicBooks(); // Refresh counts
+        
+        // Ensure public books are refreshed immediately
+        await get().fetchPublicBooks(); 
       },
 
       toggleLike: async (bookId) => {

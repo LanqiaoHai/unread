@@ -8,15 +8,20 @@ interface ActionAnimationProps {
 }
 
 const CartoonHand = () => (
-  <svg width="200" height="200" viewBox="0 0 200 200" className="drop-shadow-2xl">
+  <svg width="240" height="240" viewBox="0 0 240 240" className="drop-shadow-2xl">
     <motion.path
-      d="M100,150 C80,150 60,140 50,120 C40,100 50,80 70,75 L80,30 C82,20 95,20 98,30 L105,70 L120,30 C122,20 135,20 138,30 L145,70 L160,40 C162,30 175,30 178,40 L185,120 C185,150 160,170 130,170 L100,170"
-      fill="white"
+      d="M40,180 C40,160 60,150 80,150 C100,150 110,130 110,100 C110,70 120,60 140,60 C160,60 175,75 175,100 L175,150 C175,180 150,200 120,200 L80,200 C60,200 40,180 40,180 Z"
+      fill="#fef08a"
       stroke="#0f172a"
       strokeWidth="8"
-      strokeLinejoin="round"
-      initial={{ rotate: -20, x: 100 }}
-      animate={{ rotate: 0, x: 0 }}
+      initial={{ y: 200, rotate: 10 }}
+      animate={{ y: 0, rotate: 0 }}
+    />
+    <motion.path
+      d="M110,100 L110,60 M125,90 L125,50 M145,90 L145,50 M165,100 L165,70"
+      stroke="#0f172a"
+      strokeWidth="8"
+      strokeLinecap="round"
     />
   </svg>
 );
@@ -76,71 +81,78 @@ export const ActionAnimation: React.FC<ActionAnimationProps> = ({ type, onComple
         >
           <div className="relative flex flex-col items-center justify-center scale-150">
             {type === 'archive' ? (
-              <div className="relative">
-                {/* Book Card */}
-                <motion.div
-                  initial={{ y: 0, opacity: 1, scale: 1 }}
-                  animate={{ 
-                    x: [-400, 0, 400],
-                    rotate: [0, 0, 20],
-                    opacity: [0, 1, 0]
-                  }}
-                  transition={{ duration: 2.5, times: [0, 0.4, 0.9] }}
-                  className="w-24 h-36 bg-white border-4 border-slate-900 rounded-xl shadow-2xl flex items-center justify-center z-10"
-                >
-                  <Book className="w-10 h-10 text-slate-200" />
-                </motion.div>
+              <div className="relative flex flex-col items-center">
+                {/* Shelf Background */}
+                <div className="absolute top-20 w-80 h-4 bg-slate-900 rounded-full opacity-20" />
+                
+                <div className="relative">
+                  {/* Book Card */}
+                  <motion.div
+                    initial={{ y: 100, opacity: 0, rotate: -5 }}
+                    animate={{ 
+                      y: [100, 0, -20],
+                      x: [0, 0, 100],
+                      rotate: [-5, 0, 5],
+                      opacity: [0, 1, 0]
+                    }}
+                    transition={{ duration: 2.5, times: [0, 0.3, 0.9] }}
+                    className="w-24 h-36 bg-brand-blue border-4 border-slate-900 rounded-xl shadow-2xl flex items-center justify-center z-10"
+                  >
+                    <Book className="w-10 h-10 text-white" />
+                  </motion.div>
 
-                {/* Hand Animation */}
-                <motion.div
-                  initial={{ x: -600, y: 50 }}
-                  animate={{ 
-                    x: [-600, -80, 600],
-                    y: [100, 50, 100]
-                  }}
-                  transition={{ duration: 2.5, times: [0, 0.4, 0.9] }}
-                  className="absolute top-0 left-0"
-                >
-                  <CartoonHand />
-                </motion.div>
+                  {/* Hand Animation */}
+                  <motion.div
+                    initial={{ y: 300, x: -50 }}
+                    animate={{ 
+                      y: [300, 40, 300],
+                      x: [-50, 0, 80]
+                    }}
+                    transition={{ duration: 2.5, times: [0, 0.3, 0.9] }}
+                    className="absolute top-0 left-0 -translate-x-1/2"
+                  >
+                    <CartoonHand />
+                  </motion.div>
+                </div>
               </div>
             ) : (
               <div className="relative flex flex-col items-center">
-                {/* Book Falling */}
+                {/* Book Falling into Fire */}
                 <motion.div
                   initial={{ y: -400, rotate: -20, opacity: 0 }}
                   animate={{ 
-                    y: [ -400, 50, 80],
+                    y: [-400, 50, 80],
                     rotate: [-20, 10, 45],
                     opacity: [0, 1, 0],
                     scale: [1, 1, 0.5]
                   }}
-                  transition={{ duration: 2.5, times: [0, 0.5, 1] }}
-                  className="w-24 h-36 bg-white border-4 border-slate-900 rounded-xl shadow-2xl flex items-center justify-center z-10 mb-8"
+                  transition={{ duration: 2.5, times: [0, 0.4, 1] }}
+                  className="w-24 h-36 bg-brand-orange border-4 border-slate-900 rounded-xl shadow-2xl flex items-center justify-center z-10 mb-8"
                 >
-                  <Book className="w-10 h-10 text-slate-200" />
+                  <Book className="w-10 h-10 text-white" />
                 </motion.div>
 
                 {/* Flames */}
-                <div className="mt-[-80px] scale-125">
+                <div className="mt-[-80px] scale-150">
                   <BouncyFlames />
                 </div>
 
-                {/* Ash Particles */}
-                {[...Array(15)].map((_, i) => (
+                {/* Ash Particles (More prominent) */}
+                {[...Array(20)].map((_, i) => (
                   <motion.div
                     key={i}
-                    className="absolute w-2 h-2 bg-slate-400 rounded-full"
-                    initial={{ opacity: 0, y: 50 }}
+                    className="absolute w-3 h-3 bg-slate-600 rounded-sm"
+                    initial={{ opacity: 0, y: 100 }}
                     animate={{ 
-                      y: -200, 
-                      x: (Math.random() - 0.5) * 200,
-                      opacity: [0, 0.8, 0],
-                      scale: [1, 1.5, 0.5]
+                      y: [-100, -300], 
+                      x: (Math.random() - 0.5) * 400,
+                      opacity: [0, 0.6, 0],
+                      scale: [1, 2, 0.5],
+                      rotate: [0, 180]
                     }}
                     transition={{ 
-                      duration: 2, 
-                      delay: 1.2 + Math.random() * 0.5,
+                      duration: 2.5, 
+                      delay: 1 + Math.random() * 1,
                       repeat: Infinity 
                     }}
                   />

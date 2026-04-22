@@ -14,9 +14,18 @@ export const Layout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-bg-cream text-slate-800 selection:bg-brand-yellow/30">
-      {/* Navigation (Mobile Bottom / Desktop Top) */}
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-lg glass-card p-3 z-50 border-slate-900 md:top-6 md:bottom-auto">
+      {/* Navigation (Always Top) */}
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 w-[90%] max-w-lg glass-card p-3 z-50 border-slate-900 shadow-xl">
         <div className="flex justify-between items-center px-4">
+          {/* Login Entry / Settings - Now First */}
+          <button 
+            onClick={() => setShowSettings(true)}
+            className="p-4 text-brand-yellow drop-shadow-md hover:scale-110 transition-transform btn-bouncy"
+            title="登录/状态"
+          >
+            <BookUser className="w-8 h-8" />
+          </button>
+
           {/* Brand/Home Icon */}
           <NavLink 
             to="/" 
@@ -49,20 +58,11 @@ export const Layout: React.FC = () => {
           >
             <Plus className="w-7 h-7 stroke-[3px]" />
           </NavLink>
-
-          {/* Login Entry - Cartoon Book with User */}
-          <button 
-            onClick={() => setShowSettings(true)}
-            className="p-4 text-brand-yellow drop-shadow-md hidden sm:block hover:scale-110 transition-transform btn-bouncy"
-            title="登录/同步"
-          >
-            <BookUser className="w-8 h-8" />
-          </button>
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-2xl mx-auto px-6 pt-12 pb-32 md:pt-32 md:pb-12">
+      <main className="max-w-2xl mx-auto px-6 pt-32 pb-12">
         <Outlet />
       </main>
 
