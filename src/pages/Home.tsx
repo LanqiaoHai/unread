@@ -26,7 +26,7 @@ const DashboardCard: React.FC<{ label: string; value: number | string; icon: Rea
         {icon}
       </div>
       <span className="text-3xl font-black tracking-tighter mb-1 text-slate-900">{value}</span>
-      <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{label}</span>
+      <span className="text-sm font-black uppercase tracking-[0.2em] text-slate-400">{label}</span>
     </div>
   </motion.div>
 );
@@ -279,23 +279,18 @@ export const Home: React.FC = () => {
 
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-2xl mx-auto pb-40">
+    <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-2xl mx-auto pb-40 relative">
+      <button 
+        onClick={() => setShowSettings(true)} 
+        className="absolute -top-12 right-0 p-3 bg-white border-4 border-slate-900 rounded-2xl text-slate-400 hover:text-slate-900 transition-all btn-bouncy z-50 shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
+      >
+        <Settings className="w-6 h-6" />
+      </button>
+
       <header className="mb-14 relative flex items-center justify-center">
         <h1 className="text-4xl sm:text-5xl font-black tracking-tighter text-slate-900 uppercase text-center">
           我的 <span className="text-brand-orange underline decoration-brand-yellow decoration-8">书架</span>
         </h1>
-        
-        <div className="absolute right-0 flex gap-3">
-          <button 
-            onClick={() => { setIsSelectionMode(!isSelectionMode); setSelectedIds(new Set()); }}
-            className={`p-3 sm:p-4 glass-card border-slate-900 transition-all btn-bouncy ${isSelectionMode ? 'bg-brand-orange text-white' : 'bg-white text-slate-400 hover:text-slate-600'}`}
-          >
-            <Archive className="w-6 h-6 sm:w-7 sm:h-7" />
-          </button>
-          <button onClick={() => setShowSettings(true)} className="p-3 sm:p-4 glass-card border-slate-900 bg-white text-slate-400 hover:text-slate-600 transition-all btn-bouncy">
-            <Settings className="w-6 h-6 sm:w-7 sm:h-7" />
-          </button>
-        </div>
       </header>
 
       {/* Stats Dashboard */}
@@ -309,24 +304,34 @@ export const Home: React.FC = () => {
       </section>
 
       {/* Tabs */}
-      <div className="flex gap-10 mb-10 border-b-4 border-slate-900/5 px-2">
-        {['later', 'avoid'].map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab as any)}
-            className={`pb-5 px-1 text-lg font-black tracking-widest transition-all relative ${
-              activeTab === tab ? 'text-slate-900' : 'text-slate-300 hover:text-slate-400'
-            }`}
-          >
-            {tab === 'later' ? '以后再读' : '避雷日记'}
-            {activeTab === tab && (
-              <motion.div 
-                layoutId="tab-underline" 
-                className={`absolute bottom-[-4px] left-0 right-0 h-2 rounded-full ${tab === 'later' ? 'bg-brand-blue' : 'bg-brand-orange'}`} 
-              />
-            )}
-          </button>
-        ))}
+      <div className="flex items-center justify-between mb-10 border-b-4 border-slate-900/5 px-2">
+        <div className="flex gap-10">
+          {['later', 'avoid'].map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab as any)}
+              className={`pb-5 px-1 text-lg font-black tracking-widest transition-all relative ${
+                activeTab === tab ? 'text-slate-900' : 'text-slate-300 hover:text-slate-400'
+              }`}
+            >
+              {tab === 'later' ? '以后再读' : '避雷日记'}
+              {activeTab === tab && (
+                <motion.div 
+                  layoutId="tab-underline" 
+                  className={`absolute bottom-[-4px] left-0 right-0 h-2 rounded-full ${tab === 'later' ? 'bg-brand-blue' : 'bg-brand-orange'}`} 
+                />
+              )}
+            </button>
+          ))}
+        </div>
+        
+        <button 
+          onClick={() => { setIsSelectionMode(!isSelectionMode); setSelectedIds(new Set()); }}
+          className={`pb-5 flex items-center gap-2 font-black transition-all btn-bouncy ${isSelectionMode ? 'text-brand-orange' : 'text-slate-300 hover:text-slate-900'}`}
+        >
+          <Archive className="w-6 h-6" />
+          <span className="text-sm tracking-widest uppercase">批量管理</span>
+        </button>
       </div>
 
       {displayedBooks.length === 0 ? (
@@ -414,7 +419,7 @@ export const Home: React.FC = () => {
           className="fixed bottom-10 left-1/2 glass-card border-slate-900 border-4 px-12 py-8 rounded-full shadow-[0_20px_0_0_rgba(0,0,0,0.1)] flex items-center gap-10 z-[100] min-w-[450px]"
         >
           <div>
-            <span className="text-xs text-slate-400 uppercase tracking-widest block font-black mb-1">已选宝贝</span>
+            <span className="text-xs text-slate-400 uppercase tracking-widest block font-black mb-1">已选书籍</span>
             <span className="text-4xl font-black text-brand-orange leading-none">{selectedIds.size}</span>
           </div>
           <div className="h-14 w-1 bg-slate-100 rounded-full mx-2" />

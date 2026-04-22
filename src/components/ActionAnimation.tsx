@@ -1,11 +1,53 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Ghost, Zap, Flame } from 'lucide-react';
+import { Book } from 'lucide-react';
 
 interface ActionAnimationProps {
   type: 'archive' | 'burn' | null;
   onComplete: () => void;
 }
+
+const CartoonHand = () => (
+  <svg width="200" height="200" viewBox="0 0 200 200" className="drop-shadow-2xl">
+    <motion.path
+      d="M100,150 C80,150 60,140 50,120 C40,100 50,80 70,75 L80,30 C82,20 95,20 98,30 L105,70 L120,30 C122,20 135,20 138,30 L145,70 L160,40 C162,30 175,30 178,40 L185,120 C185,150 160,170 130,170 L100,170"
+      fill="white"
+      stroke="#0f172a"
+      strokeWidth="8"
+      strokeLinejoin="round"
+      initial={{ rotate: -20, x: 100 }}
+      animate={{ rotate: 0, x: 0 }}
+    />
+  </svg>
+);
+
+const BouncyFlames = () => (
+  <div className="relative w-64 h-64 flex items-center justify-center">
+    {[...Array(6)].map((_, i) => (
+      <motion.div
+        key={i}
+        className="absolute rounded-full"
+        style={{
+          width: 100 + i * 20,
+          height: 100 + i * 20,
+          backgroundColor: i % 2 === 0 ? '#fb923c' : '#facc15',
+          zIndex: 10 - i,
+          filter: 'blur(4px)',
+        }}
+        animate={{
+          scale: [1, 1.2, 0.9, 1.1, 1],
+          y: [0, -20, 10, -5, 0],
+          rotate: [0, 5, -5, 2, 0],
+        }}
+        transition={{
+          duration: 1.5 + i * 0.2,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+    ))}
+  </div>
+);
 
 export const ActionAnimation: React.FC<ActionAnimationProps> = ({ type, onComplete }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -15,12 +57,9 @@ export const ActionAnimation: React.FC<ActionAnimationProps> = ({ type, onComple
       setIsVisible(true);
       const timer = setTimeout(() => {
         setIsVisible(false);
-        setTimeout(onComplete, 800);
-      }, 3500);
-
-      return () => {
-        clearTimeout(timer);
-      };
+        setTimeout(onComplete, 500);
+      }, 3000);
+      return () => clearTimeout(timer);
     }
   }, [type, onComplete]);
 
@@ -33,100 +72,82 @@ export const ActionAnimation: React.FC<ActionAnimationProps> = ({ type, onComple
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/95 backdrop-blur-2xl overflow-hidden select-none"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/90 backdrop-blur-xl overflow-hidden"
         >
-          {/* Background Ambient Glow */}
-          <motion.div 
-            animate={{ 
-              opacity: [0.3, 0.6, 0.3],
-              scale: [1, 1.2, 1],
-            }}
-            transition={{ duration: 4, repeat: Infinity }}
-            className={`absolute inset-0 ${type === 'burn' ? 'bg-brand-orange/10' : 'bg-brand-yellow/10'}`}
-          />
+          <div className="relative flex flex-col items-center justify-center scale-150">
+            {type === 'archive' ? (
+              <div className="relative">
+                {/* Book Card */}
+                <motion.div
+                  initial={{ y: 0, opacity: 1, scale: 1 }}
+                  animate={{ 
+                    x: [-400, 0, 400],
+                    rotate: [0, 0, 20],
+                    opacity: [0, 1, 0]
+                  }}
+                  transition={{ duration: 2.5, times: [0, 0.4, 0.9] }}
+                  className="w-24 h-36 bg-white border-4 border-slate-900 rounded-xl shadow-2xl flex items-center justify-center z-10"
+                >
+                  <Book className="w-10 h-10 text-slate-200" />
+                </motion.div>
 
-          <div className="relative z-10 flex flex-col items-center justify-center">
-            
-            {/* The Ritual Symbol */}
-            <motion.div
-              initial={{ scale: 0.5, rotate: -45, opacity: 0 }}
-              animate={{ scale: 1, rotate: 0, opacity: 1 }}
-              transition={{ type: "spring", damping: 12 }}
-              className="relative mb-12"
-            >
-              {type === 'archive' ? (
-                <div className="relative">
-                  <motion.div 
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                    className="absolute -inset-10 border-2 border-dashed border-brand-yellow/20 rounded-full"
-                  />
-                  <div className="w-32 h-32 rounded-full bg-brand-yellow flex items-center justify-center border-4 border-slate-900 shadow-[8px_8px_0_0_rgba(0,0,0,1)]">
-                    <Zap className="w-16 h-16 text-slate-900" />
-                  </div>
-                </div>
-              ) : (
-                <div className="relative">
-                  <motion.div 
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute -inset-10 bg-brand-orange/20 blur-3xl rounded-full"
-                  />
-                  <div className="w-32 h-32 rounded-full bg-brand-orange flex items-center justify-center border-4 border-slate-900 shadow-[8px_8px_0_0_rgba(0,0,0,1)]">
-                    <Flame className="w-16 h-16 text-white" />
-                  </div>
-                </div>
-              )}
-            </motion.div>
-
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="text-center"
-            >
-              <h2 className="text-5xl font-black text-white italic tracking-tighter mb-4 uppercase">
-                {type === 'archive' ? 'Archived' : 'Incinerated'}
-              </h2>
-              <div className="flex items-center justify-center gap-3">
-                {type === 'archive' ? (
-                  <>
-                    <Sparkles className="w-5 h-5 text-brand-yellow" />
-                    <p className="text-brand-yellow font-black uppercase tracking-[0.3em] text-sm">Stored in Library</p>
-                  </>
-                ) : (
-                  <>
-                    <Ghost className="w-5 h-5 text-brand-orange" />
-                    <p className="text-brand-orange font-black uppercase tracking-[0.3em] text-sm">Released as Ash</p>
-                  </>
-                )}
+                {/* Hand Animation */}
+                <motion.div
+                  initial={{ x: -600, y: 50 }}
+                  animate={{ 
+                    x: [-600, -80, 600],
+                    y: [100, 50, 100]
+                  }}
+                  transition={{ duration: 2.5, times: [0, 0.4, 0.9] }}
+                  className="absolute top-0 left-0"
+                >
+                  <CartoonHand />
+                </motion.div>
               </div>
-            </motion.div>
+            ) : (
+              <div className="relative flex flex-col items-center">
+                {/* Book Falling */}
+                <motion.div
+                  initial={{ y: -400, rotate: -20, opacity: 0 }}
+                  animate={{ 
+                    y: [ -400, 50, 80],
+                    rotate: [-20, 10, 45],
+                    opacity: [0, 1, 0],
+                    scale: [1, 1, 0.5]
+                  }}
+                  transition={{ duration: 2.5, times: [0, 0.5, 1] }}
+                  className="w-24 h-36 bg-white border-4 border-slate-900 rounded-xl shadow-2xl flex items-center justify-center z-10 mb-8"
+                >
+                  <Book className="w-10 h-10 text-slate-200" />
+                </motion.div>
 
+                {/* Flames */}
+                <div className="mt-[-80px] scale-125">
+                  <BouncyFlames />
+                </div>
+
+                {/* Ash Particles */}
+                {[...Array(15)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-2 h-2 bg-slate-400 rounded-full"
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ 
+                      y: -200, 
+                      x: (Math.random() - 0.5) * 200,
+                      opacity: [0, 0.8, 0],
+                      scale: [1, 1.5, 0.5]
+                    }}
+                    transition={{ 
+                      duration: 2, 
+                      delay: 1.2 + Math.random() * 0.5,
+                      repeat: Infinity 
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-
-          {/* Floating Particles */}
-          {[...Array(12)].map((_, i) => (
-            <motion.div
-              key={i}
-              className={`absolute w-2 h-2 rounded-full ${type === 'burn' ? 'bg-brand-orange' : 'bg-brand-yellow'}`}
-              initial={{ 
-                x: Math.random() * window.innerWidth, 
-                y: window.innerHeight + 100,
-                opacity: 0 
-              }}
-              animate={{ 
-                y: -100,
-                opacity: [0, 0.5, 0],
-                x: (Math.random() - 0.5) * 200 + (Math.random() * window.innerWidth)
-              }}
-              transition={{ 
-                duration: 2 + Math.random() * 3, 
-                repeat: Infinity,
-                delay: Math.random() * 2
-              }}
-            />
-          ))}
         </motion.div>
       )}
     </AnimatePresence>
