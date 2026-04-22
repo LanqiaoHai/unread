@@ -12,7 +12,7 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
   const [formData, setFormData] = useState<Book>({
     id: '',
     title: '',
-    authors: '',
+    authors: [],
     thumbnail: '',
     description: ''
   });
@@ -78,7 +78,7 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
       ...formData,
       id: crypto.randomUUID()
     });
-    setFormData({ id: '', title: '', authors: '', thumbnail: '', description: '' });
+    setFormData({ id: '', title: '', authors: [], thumbnail: '', description: '' });
     setDoubanUrl('');
     onClose();
   };
@@ -173,8 +173,8 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
                 type="text"
                 placeholder="作者"
                 className="w-full bg-slate-50 border-4 border-slate-100 px-6 py-4 rounded-[1.5rem] outline-none focus:border-brand-yellow focus:bg-white transition-all font-bold text-slate-900"
-                value={formData.authors}
-                onChange={(e) => setFormData(prev => ({ ...prev, authors: e.target.value }))}
+                value={formData.authors.join(', ')}
+                onChange={(e) => setFormData(prev => ({ ...prev, authors: e.target.value.split(',').map(a => a.trim()).filter(Boolean) }))}
               />
             </div>
 
