@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Book } from 'lucide-react';
 
+const MotionDiv = motion.div as any;
+
 interface ActionAnimationProps {
   type: 'archive' | 'burn' | null;
   onComplete: () => void;
@@ -73,7 +75,7 @@ export const ActionAnimation: React.FC<ActionAnimationProps> = ({ type, onComple
   return (
     <AnimatePresence>
       {isVisible && (
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -87,7 +89,7 @@ export const ActionAnimation: React.FC<ActionAnimationProps> = ({ type, onComple
                 
                 <div className="relative">
                   {/* Book Card */}
-                  <motion.div
+                  <MotionDiv
                     initial={{ y: 100, opacity: 0, rotate: -5 }}
                     animate={{ 
                       y: [100, 0, -20],
@@ -99,10 +101,10 @@ export const ActionAnimation: React.FC<ActionAnimationProps> = ({ type, onComple
                     className="w-24 h-36 bg-brand-blue border-4 border-slate-900 rounded-xl shadow-2xl flex items-center justify-center z-10"
                   >
                     <Book className="w-10 h-10 text-white" />
-                  </motion.div>
+                  </MotionDiv>
 
                   {/* Hand Animation */}
-                  <motion.div
+                  <MotionDiv
                     initial={{ y: 300, x: -50 }}
                     animate={{ 
                       y: [300, 40, 300],
@@ -112,13 +114,13 @@ export const ActionAnimation: React.FC<ActionAnimationProps> = ({ type, onComple
                     className="absolute top-0 left-0 -translate-x-1/2"
                   >
                     <CartoonHand />
-                  </motion.div>
+                  </MotionDiv>
                 </div>
               </div>
             ) : (
               <div className="relative flex flex-col items-center">
                 {/* Book Falling into Fire */}
-                <motion.div
+                <MotionDiv
                   initial={{ y: -400, rotate: -20, opacity: 0 }}
                   animate={{ 
                     y: [-400, 50, 80],
@@ -130,7 +132,7 @@ export const ActionAnimation: React.FC<ActionAnimationProps> = ({ type, onComple
                   className="w-24 h-36 bg-brand-orange border-4 border-slate-900 rounded-xl shadow-2xl flex items-center justify-center z-10 mb-8"
                 >
                   <Book className="w-10 h-10 text-white" />
-                </motion.div>
+                </MotionDiv>
 
                 {/* Flames */}
                 <div className="mt-[-80px] scale-150">
@@ -139,7 +141,7 @@ export const ActionAnimation: React.FC<ActionAnimationProps> = ({ type, onComple
 
                 {/* Ash Particles (More prominent) */}
                 {[...Array(20)].map((_, i) => (
-                  <motion.div
+                  <MotionDiv
                     key={i}
                     className="absolute w-3 h-3 bg-slate-600 rounded-sm"
                     initial={{ opacity: 0, y: 100 }}
@@ -160,7 +162,7 @@ export const ActionAnimation: React.FC<ActionAnimationProps> = ({ type, onComple
               </div>
             )}
           </div>
-        </motion.div>
+        </MotionDiv>
       )}
     </AnimatePresence>
   );

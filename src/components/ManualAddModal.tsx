@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { X, BookPlus, Upload } from 'lucide-react';
+import { X, BookPlus, Upload, Loader2, Zap } from 'lucide-react';
 import type { Book } from '../types';
 
 interface ManualAddModalProps {
@@ -9,9 +9,10 @@ interface ManualAddModalProps {
 }
 
 export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose, onAdd }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Book>({
+    id: '',
     title: '',
-    author: '',
+    authors: '',
     thumbnail: '',
     description: ''
   });
@@ -62,10 +63,6 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        alert('图片太大了，请上传小于 2MB 的图片（为了节省数据库空间）');
-        return;
-      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData(prev => ({ ...prev, thumbnail: reader.result as string }));
@@ -77,28 +74,21 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title) return;
-
-    const newBook: Book = {
-      id: `manual-${Date.now()}`,
-      title: formData.title,
-      authors: [formData.author || '未知作者'],
-      thumbnail: formData.thumbnail || undefined,
-      description: formData.description || undefined,
-      publishedDate: new Date().getFullYear().toString()
-    };
-
-    onAdd(newBook);
+    onAdd({
+      ...formData,
+      id: crypto.randomUUID()
+    });
+    setFormData({ id: '', title: '', authors: '', thumbnail: '', description: '' });
+    setDoubanUrl('');
     onClose();
-    // Reset form
-    setFormData({ title: '', author: '', thumbnail: '', description: '' });
   };
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="bg-bg-main w-full max-w-md rounded-[3rem] border-4 border-slate-900 shadow-[10px_10px_0_0_rgba(0,0,0,0.1)] p-10 relative overflow-hidden">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xl z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
+      <div className="glass-card max-w-lg w-full bg-white rounded-[3rem] p-10 shadow-2xl relative border-4 border-slate-900 btn-bouncy max-h-[90vh] overflow-y-auto">
         <button 
-          onClick={onClose}
-          className="absolute top-8 right-8 p-3 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-2xl transition-all btn-bouncy"
+          onClick={onClose} 
+          className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 active:scale-75 transition-all btn-bouncy"
         >
           <X className="w-6 h-6" />
         </button>
@@ -139,58 +129,75 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">图书封面</label>
              <div 
                onClick={() => fileInputRef.current?.click()}
-               className="w-full aspect-[3/4] max-h-48 bg-white border-4 border-slate-900 border-dashed rounded-[2rem] flex flex-col items-center justify-center cursor-pointer hover:bg-brand-yellow/5 transition-all group overflow-hidden"
+               className="group relative w-32 h-44 bg-slate-50 rounded-[2rem] border-4 border-dashed border-slate-200 hover:border-brand-yellow cursor-pointer overflow-hidden transition-all flex flex-col items-center justify-center gap-2"
              >
                {formData.thumbnail ? (
-                 <img src={formData.thumbnail} alt="Preview" className="w-full h-full object-cover" />
+                 <>
+                   <img src={formData.thumbnail} alt="Preview" className="w-full h-full object-cover" />
+                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                     <Upload className="text-white w-8 h-8" />
+                   </div>
+                 </>
                ) : (
                  <>
-                   <Upload className="w-10 h-10 text-slate-200 group-hover:text-brand-orange mb-3 transition-colors" />
-                   <span className="text-sm font-bold text-slate-300">点击上传本地封面图</span>
+                   <Upload className="w-8 h-8 text-slate-300 group-hover:text-brand-yellow transition-colors" />
+                   <span className="text-[10px] font-black text-slate-300 group-hover:text-brand-yellow uppercase tracking-tighter">上传图</span>
                  </>
                )}
              </div>
              <input 
                type="file" 
-               ref={fileInputRef} 
-               onChange={handleFileChange} 
-               accept="image/*" 
+               ref={fileInputRef}
+               onChange={handleFileChange}
+               accept="image/*"
                className="hidden" 
              />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">书名 *</label>
-            <input
-              type="text"
-              required
-              placeholder="这本书叫什么？"
-              className="w-full bg-white border-4 border-slate-900 px-6 py-4 rounded-2xl outline-none focus:ring-8 focus:ring-brand-blue/20 transition-all font-bold"
-              value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-            />
-          </div>
+          <div className="space-y-4">
+            <div>
+              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">书籍名称 *</label>
+              <input
+                required
+                type="text"
+                placeholder="书名"
+                className="w-full bg-slate-50 border-4 border-slate-100 px-6 py-4 rounded-[1.5rem] outline-none focus:border-brand-yellow focus:bg-white transition-all font-bold text-slate-900"
+                value={formData.title}
+                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              />
+            </div>
+            
+            <div>
+              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">作者</label>
+              <input
+                type="text"
+                placeholder="作者"
+                className="w-full bg-slate-50 border-4 border-slate-100 px-6 py-4 rounded-[1.5rem] outline-none focus:border-brand-yellow focus:bg-white transition-all font-bold text-slate-900"
+                value={formData.authors}
+                onChange={(e) => setFormData(prev => ({ ...prev, authors: e.target.value }))}
+              />
+            </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">作者</label>
-            <input
-              type="text"
-              placeholder="作者名称"
-              className="w-full bg-white border-4 border-slate-900 px-6 py-4 rounded-2xl outline-none focus:ring-8 focus:ring-brand-blue/20 transition-all font-bold"
-              value={formData.author}
-              onChange={(e) => setFormData(prev => ({ ...prev, author: e.target.value }))}
-            />
+            <div>
+              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">为什么决定弃读？</label>
+              <textarea
+                placeholder="记录一下此刻的想法..."
+                rows={3}
+                className="w-full bg-slate-50 border-4 border-slate-100 px-6 py-4 rounded-[1.5rem] outline-none focus:border-brand-yellow focus:bg-white transition-all font-bold text-slate-900 resize-none"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              />
+            </div>
           </div>
 
           <button
             type="submit"
-            className="w-full bg-brand-orange text-white font-black py-5 rounded-3xl shadow-lg hover:brightness-110 active:scale-95 transition-all mt-6 text-xl tracking-widest"
+            className="w-full cute-gradient py-5 text-white text-xl font-black rounded-full shadow-[4px_4px_0_0_rgba(0,0,0,1)] border-4 border-slate-900 active:translate-y-1 active:shadow-none transition-all tracking-widest"
           >
-            确认加入书柜
+            完成录入
           </button>
         </form>
       </div>
     </div>
   );
 };
-
