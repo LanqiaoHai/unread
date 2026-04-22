@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search as SearchIcon, Book as BookIcon, ChevronRight, Plus, ExternalLink, Sparkles } from 'lucide-react';
+import { Search as SearchIcon, Book as BookIcon, ChevronRight, Sparkles } from 'lucide-react';
 import { searchBooks } from '../lib/bookApi';
 import { ManualAddModal } from '../components/ManualAddModal';
 import type { Book } from '../types';

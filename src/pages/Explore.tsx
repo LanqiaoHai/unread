@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, Sparkles, Compass, Ghost, Quote, Star, Loader2, X, Send, Check } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Sparkles, Compass, Ghost, Quote, Star, Loader2, X, Send, Check, Zap } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { AbandonedBook } from '../types';
@@ -205,12 +205,12 @@ export const Explore: React.FC = () => {
               {previews[post.id]?.length > 0 && (
                 <div className="mb-0 mt-8 p-6 bg-slate-50 rounded-[2rem] border-4 border-slate-900/5 space-y-4">
                   {previews[post.id].map((c: any, idx: number) => (
-                    <div key={idx} className="flex gap-3 items-start animate-in slide-in-from-left-4 duration-500" style={{ delay: `${idx * 100}ms` }}>
+                    <div key={idx} className="flex gap-3 items-start animate-in slide-in-from-left-4 duration-500" style={{ animationDelay: `${idx * 100}ms` }}>
                       <span className="font-black text-brand-orange text-xs shrink-0 mt-1">{c.user_display_name}:</span>
                       <p className="text-sm text-slate-500 font-bold leading-tight">{c.content}</p>
                     </div>
                   ))}
-                  {post.commentsCount > 2 && (
+                  {(post.commentsCount || 0) > 2 && (
                     <button 
                       onClick={() => handleOpenComments(post)} 
                       className="text-[10px] font-black text-slate-300 uppercase tracking-widest hover:text-brand-blue transition-colors flex items-center gap-1"
@@ -289,7 +289,7 @@ export const Explore: React.FC = () => {
                   </div>
                 ) : (
                   comments.map((c: any, idx: number) => (
-                    <div key={idx} className="flex gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ delay: `${idx * 50}ms` }}>
+                    <div key={idx} className="flex gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${idx * 50}ms` }}>
                       <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center font-black text-slate-400 text-lg border-2 border-slate-900/5 shrink-0 uppercase tracking-tighter">
                         {c.user_display_name?.[0] || '匿'}
                       </div>
