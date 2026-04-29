@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { Star, Skull, Loader2, Share2 } from 'lucide-react';
+import { Loader2, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Book } from '../types';
 
@@ -15,7 +15,7 @@ export const Snapshot: React.FC = () => {
   const existingData = location.state?.existingData;
 
   const [step, setStep] = useState(1);
-  const [score, setScore] = useState(existingData?.score || 0);
+  const score = existingData?.score || 0; // Keeping score as constant if no longer editable here
   const [reason, setReason] = useState(existingData?.reason || '');
   const [progress, setProgress] = useState(existingData?.progress || '');
   const [isPublic, setIsPublic] = useState(existingData?.isPublic ?? true);
