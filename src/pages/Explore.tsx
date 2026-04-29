@@ -124,6 +124,17 @@ export const Explore: React.FC = () => {
     ? publicBooks 
     : publicBooks.filter(b => b.uid === currentUser || b.isFavorited);
 
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  const toggleExpand = (id: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-2xl mx-auto pb-40 px-4">
       <header className="mb-10 sm:mb-14 text-center">
@@ -211,11 +222,21 @@ export const Explore: React.FC = () => {
                     ))}
                   </div>
 
-                  <div className="p-4 sm:p-6 bg-bg-cream rounded-[1.5rem] sm:rounded-[2rem] border-4 border-slate-900 border-dashed relative">
+                  <div 
+                    onClick={() => toggleExpand(post.id)}
+                    className="p-4 sm:p-6 bg-bg-cream rounded-[1.5rem] sm:rounded-[2rem] border-4 border-slate-900 border-dashed relative cursor-pointer group/reason hover:bg-slate-50 transition-all"
+                  >
                     <Quote className="absolute -top-2 -left-2 w-6 h-6 text-brand-yellow/30" />
-                    <p className="text-sm sm:text-base text-slate-700 italic font-bold leading-tight line-clamp-3">
+                    <p className={`text-sm sm:text-base text-slate-700 italic font-bold leading-relaxed transition-all ${expandedIds.has(post.id) ? '' : 'line-clamp-3'}`}>
                       "{post.reason || '没有留下碎碎念。'}"
                     </p>
+                    {post.reason && post.reason.length > 60 && (
+                      <div className="mt-2 flex justify-end">
+                        <span className="text-[10px] font-black text-brand-blue uppercase tracking-widest group-hover/reason:translate-x-1 transition-transform">
+                          {expandedIds.has(post.id) ? '收起全文 ↑' : '... 展开全文 →'}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
