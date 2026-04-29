@@ -20,9 +20,44 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // 限制 5MB，虽然我们会压缩，但防止极端情况
+      if (file.size > 5 * 1024 * 1024) {
+        alert('图片太大了，请上传 5MB 以内的图片');
+        return;
+      }
+
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatar(reader.result as string);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          // 创建画布进行压缩
+          const canvas = document.createElement('canvas');
+          const MAX_SIZE = 200; // 头像不需要太大，200px 足够清晰且体积小
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // 导出为压缩后的 base64
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          setAvatar(compressedBase64);
+        };
+        img.src = event.target?.result as string;
       };
       reader.readAsDataURL(file);
     }
