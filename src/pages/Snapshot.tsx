@@ -72,7 +72,6 @@ export const Snapshot: React.FC = () => {
         )}
 
         <AnimatePresence mode="wait">
-        <AnimatePresence mode="wait">
           {step === 1 && (
             <motion.div
               key="step2"
