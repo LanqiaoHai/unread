@@ -20,8 +20,8 @@ const DashboardCard: React.FC<{ label: string; value: number | string; icon: Rea
   >
     <div className={`absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity bg-gradient-to-br ${color}`} />
     <div className="z-10 flex flex-col items-center text-center">
-      <div className="mb-2 sm:mb-3 p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-50 text-slate-800 group-hover:scale-110 transition-transform border-2 border-slate-900/5">
-        {React.cloneElement(icon as React.ReactElement, { className: "w-4 h-4 sm:w-6 sm:h-6" })}
+      <div className="mb-2 sm:mb-3 p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-50 text-slate-800 group-hover:scale-110 transition-transform border-2 border-slate-900/5 flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 sm:[&>svg]:w-6 sm:[&>svg]:h-6">
+        {icon}
       </div>
       <span className="text-xl sm:text-3xl font-black tracking-tighter mb-0 sm:mb-1 text-slate-900">{value}</span>
       <span className="text-[10px] sm:text-sm font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] text-slate-400">{label}</span>
