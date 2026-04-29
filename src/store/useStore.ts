@@ -90,6 +90,7 @@ export const useStore = create<UnreadState>()(
         const user = session?.user;
 
         if (user) {
+          try {
             const isAdmin = user.user_metadata?.is_admin === true;
             let query = supabase.from('books').delete().eq('id', id);
             
