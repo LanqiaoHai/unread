@@ -227,7 +227,11 @@ export const Explore: React.FC = () => {
                   
                   <div className="flex gap-1 mb-4">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`w-4 h-4 ${i < Math.abs(post.score || 0) ? (post.score > 0 ? 'text-brand-yellow fill-brand-yellow' : 'text-slate-400 fill-slate-400') : 'text-slate-100 fill-slate-100'}`} />
+                      post.score > 0 ? (
+                        <Star key={i} className={`w-4 h-4 ${i < post.score ? 'text-brand-yellow fill-brand-yellow' : 'text-slate-100 fill-slate-100'}`} />
+                      ) : (
+                        <Skull key={i} className={`w-4 h-4 ${i < Math.abs(post.score) ? 'text-brand-orange fill-brand-orange' : 'text-slate-100 fill-slate-100'}`} />
+                      )
                     ))}
                   </div>
 
