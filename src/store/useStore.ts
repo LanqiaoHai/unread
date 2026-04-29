@@ -57,14 +57,18 @@ export const useStore = create<UnreadState>()(
             });
             if (error) throw error;
             
-            // Auto-populate internal book catalog
-            const { data: existingCat } = await supabase.from('book_catalog').select('id').eq('title', book.title).maybeSingle();
-            if (!existingCat) {
-              await supabase.from('book_catalog').insert({
-                title: book.title,
-                authors: book.authors,
-                thumbnail: book.thumbnail
-              });
+            // Auto-populate internal book catalog (safely wrapped)
+            try {
+              const { data: existingCat } = await supabase.from('book_catalog').select('id').eq('title', book.title).maybeSingle();
+              if (!existingCat) {
+                await supabase.from('book_catalog').insert({
+                  title: book.title,
+                  authors: book.authors,
+                  thumbnail: book.thumbnail
+                });
+              }
+            } catch (catErr) {
+              console.warn("Failed to populate book_catalog, but continuing:", catErr);
             }
 
             get().fetchUserStats();
