@@ -67,19 +67,30 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
     e.preventDefault();
     if (!user) return;
     setLoading(true);
+    
+    // Debug info: Check avatar length before sending
+    console.log("Saving profile. Nickname:", nickname, "Avatar data length:", avatar.length);
+    
     try {
-      const { error } = await supabase.auth.updateUser({
+      const { data, error } = await supabase.auth.updateUser({
         data: { display_name: nickname, avatar_emoji: avatar }
       });
-      if (error) throw error;
       
+      if (error) {
+        console.error("Supabase Auth Update Error:", error);
+        alert(`保存失败: ${error.message} (错误码: ${error.status || 'unknown'})`);
+        throw error;
+      }
+      
+      console.log("Update success. New Metadata:", data.user.user_metadata);
       setSuccess(true);
+      
       setTimeout(() => {
         window.location.reload(); 
       }, 800);
-    } catch (err) {
-      console.error(err);
-      alert('保存失败，请稍后重试');
+    } catch (err: any) {
+      console.error("HandleSave Catch:", err);
+      // Detailed error alert already handled above if it's a Supabase error
     } finally {
       setLoading(false);
     }
