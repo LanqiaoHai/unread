@@ -3,12 +3,10 @@ import { motion } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ActionAnimation } from '../components/ActionAnimation';
-import { Star, Skull, Trash2, Calendar, BookOpen, Settings, CheckCircle2, Loader2, Download, CheckSquare, Square, X, Archive, DownloadCloud, Zap, TrendingUp, Heart, Bookmark, MessageCircle, Edit } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { Star, Skull, Trash2, Calendar, BookOpen, Loader2, Download, CheckSquare, Square, X, Archive, DownloadCloud, Zap, TrendingUp, Heart, Bookmark, MessageCircle, Edit } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { saveAs } from 'file-saver';
 import JSZipLib from 'jszip';
-import type { User } from '@supabase/supabase-js';
 
 // Compatible JSZip reference
 const JSZip = (JSZipLib as any).default || JSZipLib;
