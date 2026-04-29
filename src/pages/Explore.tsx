@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, Sparkles, Compass, Ghost, Quote, Star, Loader2, X, Send, Check, Zap, Bookmark, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Sparkles, Compass, Ghost, Quote, Star, Loader2, X, Send, Check, Zap, Bookmark, Trash2, Skull } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { AbandonedBook } from '../types';
