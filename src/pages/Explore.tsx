@@ -168,8 +168,12 @@ export const Explore: React.FC = () => {
           {filteredBooks.map((post) => (
             <div key={post.id} className="clay-card p-10 border-4 border-slate-900 bg-white group hover:translate-y-[-8px] transition-all duration-500">
               <div className="flex items-center gap-4 mb-8">
-                <div className="w-14 h-14 rounded-full cute-gradient-yellow border-4 border-slate-900 flex items-center justify-center font-black text-slate-900 shadow-md uppercase overflow-hidden">
-                   <div className="text-2xl">{post.user_avatar || '👻'}</div>
+                <div className="w-14 h-14 rounded-full cute-gradient-yellow border-4 border-slate-900 flex items-center justify-center font-black text-slate-900 shadow-md uppercase overflow-hidden shrink-0">
+                  {post.user_avatar?.startsWith('http') ? (
+                    <img src={post.user_avatar} alt="avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="text-2xl">{post.user_avatar || '👻'}</div>
+                  )}
                 </div>
                 <div>
                   <h4 className="font-black text-slate-900 text-xl">{post.username || post.user_display_name || '匿名书友'}</h4>

@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { Library, Compass, Plus, BookUser } from 'lucide-react';
 import { AuthModal } from './AuthModal';
+import { SettingsPanel } from './SettingsPanel';
 import { supabase } from '../lib/supabase';
+import type { User } from '@supabase/supabase-js';
 
 export const Layout: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    supabase.auth.onAuthStateChange(() => {}); // Empty listener as we don't need the user object here
-    supabase.auth.getUser(); // Trigger just to ensure session is checked
+    supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user || null));
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
   }, []);
 
   return (
@@ -66,7 +69,11 @@ export const Layout: React.FC = () => {
         <Outlet />
       </main>
 
-      {showSettings && <AuthModal onClose={() => setShowSettings(false)} />}
+      {showSettings && (
+        user && !user.is_anonymous 
+          ? <SettingsPanel user={user} onClose={() => setShowSettings(false)} /> 
+          : <AuthModal onClose={() => setShowSettings(false)} />
+      )}
     </div>
   );
 };
