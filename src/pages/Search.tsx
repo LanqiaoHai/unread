@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search as SearchIcon, Book as BookIcon, ChevronRight, Sparkles } from 'lucide-react';
-import { searchBooks } from '../lib/bookApi';
+import { supabase } from '../lib/supabase';
 import { ManualAddModal } from '../components/ManualAddModal';
 import type { Book } from '../types';
 
@@ -19,10 +19,25 @@ export const Search: React.FC = () => {
 
     setLoading(true);
     try {
-      const books = await searchBooks(query);
-      setResults(books);
+      const { data, error } = await supabase
+        .from('book_catalog')
+        .select('*')
+        .ilike('title', `%${query}%`)
+        .limit(20);
+
+      if (error) throw error;
+      
+      const mappedBooks: Book[] = (data || []).map(b => ({
+        id: b.id,
+        title: b.title,
+        authors: Array.isArray(b.authors) ? b.authors : [],
+        thumbnail: b.thumbnail,
+        description: ''
+      }));
+      setResults(mappedBooks);
     } catch (error) {
       console.error('Search failed:', error);
+      setResults([]);
     } finally {
       setLoading(false);
     }

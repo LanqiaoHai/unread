@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { X, BookPlus, Upload, Loader2, Zap } from 'lucide-react';
+import { X, BookPlus, Upload, Loader2 } from 'lucide-react';
+import Tesseract from 'tesseract.js';
 import type { Book } from '../types';
 
 interface ManualAddModalProps {
@@ -16,56 +17,40 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
     thumbnail: '',
     description: ''
   });
-  const [doubanUrl, setDoubanUrl] = useState('');
-  const [isFetching, setIsFetching] = useState(false);
+  const [isOcrRunning, setIsOcrRunning] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
 
-  const handleFetchDouban = async () => {
-    if (!doubanUrl.includes('douban.com/subject/')) {
-      alert('请输入有效的豆瓣图书链接');
-      return;
-    }
-
-    const match = doubanUrl.match(/\/subject\/(\d+)/);
-    if (!match) return;
-
-    const doubanId = match[1];
-    setIsFetching(true);
-
-    try {
-      // Simulation of metadata fetching (in a real app, this would be an Edge Function/Backend)
-      // For now, we craft a likely cover URL and prompt the user if they'd like to use it
-      const likelyCover = `https://img9.doubanio.com/view/subject/l/public/s${doubanId}.jpg`;
-      
-      // We can try to fetch, though CORS might block it. 
-      // If it fails, we still set the cover and title placeholder.
-      setFormData(prev => ({
-        ...prev,
-        title: prev.title || '正在从豆瓣加载...',
-        thumbnail: likelyCover
-      }));
-
-      // In a real scenario, you'd fetch the title here. 
-      // Since we can't scrape easily from browser, we ask the user to confirm.
-      setTimeout(() => {
-         setIsFetching(false);
-         alert('已尝试从豆瓣获取封面。由于豆瓣反爬限制，请手动补全书名和作者。');
-      }, 1000);
-
-    } catch (error) {
-      console.error('Fetch error:', error);
-      setIsFetching(false);
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, thumbnail: reader.result as string }));
+      reader.onloadend = async () => {
+        const imageUrl = reader.result as string;
+        setFormData(prev => ({ ...prev, thumbnail: imageUrl }));
+        
+        // Run OCR
+        if (!formData.title) {
+          setIsOcrRunning(true);
+          try {
+            const { data: { text } } = await Tesseract.recognize(
+              imageUrl,
+              'chi_sim+eng',
+              { logger: m => console.log(m) }
+            );
+            
+            // Basic cleanup of extracted text (take the first few meaningful lines)
+            const cleaned = text.split('\n').map(t => t.trim()).filter(t => t.length > 1).join(' ');
+            if (cleaned) {
+              setFormData(prev => ({ ...prev, title: cleaned.substring(0, 50) })); // Truncate just in case
+            }
+          } catch (err) {
+            console.error("OCR Failed:", err);
+          } finally {
+            setIsOcrRunning(false);
+          }
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -79,7 +64,6 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
       id: crypto.randomUUID()
     });
     setFormData({ id: '', title: '', authors: [], thumbnail: '', description: '' });
-    setDoubanUrl('');
     onClose();
   };
 
@@ -100,29 +84,6 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
           <h2 className="text-3xl font-black text-slate-900 tracking-tighter">手动录入书籍</h2>
         </div>
 
-        {/* Douban Link Section */}
-        <div className="mb-8 p-6 bg-slate-50 rounded-[2rem] border-4 border-slate-900/5 space-y-3">
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">粘贴豆瓣链接自动填充</label>
-          <div className="flex gap-3">
-            <input
-              type="text"
-              placeholder="https://book.douban.com/subject/..."
-              className="flex-1 bg-white border-2 border-slate-200 px-4 py-3 rounded-xl outline-none focus:border-brand-blue font-bold text-sm"
-              value={doubanUrl}
-              onChange={(e) => setDoubanUrl(e.target.value)}
-            />
-            <button 
-              type="button"
-              onClick={handleFetchDouban}
-              disabled={isFetching}
-              className="bg-brand-blue text-white px-4 py-3 rounded-xl font-black hover:brightness-110 active:scale-95 transition-all text-sm flex items-center gap-2"
-            >
-              {isFetching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4 fill-white" />}
-              获取
-            </button>
-          </div>
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Custom File Upload Section */}
           <div className="space-y-3">
@@ -140,9 +101,16 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
                  </>
                ) : (
                  <>
-                   <Upload className="w-8 h-8 text-slate-300 group-hover:text-brand-yellow transition-colors" />
-                   <span className="text-[10px] font-black text-slate-300 group-hover:text-brand-yellow uppercase tracking-tighter">上传图</span>
+                   <span className="text-[10px] font-black text-slate-300 group-hover:text-brand-yellow uppercase tracking-tighter">
+                     上传图
+                   </span>
                  </>
+               )}
+               {isOcrRunning && (
+                 <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center gap-2 transition-all">
+                    <Loader2 className="w-6 h-6 text-brand-yellow animate-spin" />
+                    <span className="text-[10px] font-black text-brand-yellow tracking-widest uppercase">正在识别文字</span>
+                 </div>
                )}
              </div>
              <input 
@@ -192,7 +160,7 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
 
           <button
             type="submit"
-            className="w-full cute-gradient py-5 text-white text-xl font-black rounded-full shadow-[4px_4px_0_0_rgba(0,0,0,1)] border-4 border-slate-900 active:translate-y-1 active:shadow-none transition-all tracking-widest"
+            className="w-full cute-gradient-yellow py-5 text-slate-900 text-xl font-black rounded-full shadow-[4px_4px_0_0_rgba(0,0,0,1)] border-4 border-slate-900 active:translate-y-1 active:shadow-none transition-all tracking-widest"
           >
             完成录入
           </button>

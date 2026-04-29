@@ -56,6 +56,17 @@ export const useStore = create<UnreadState>()(
               user_avatar: user.user_metadata?.avatar_emoji || '👻'
             });
             if (error) throw error;
+            
+            // Auto-populate internal book catalog
+            const { data: existingCat } = await supabase.from('book_catalog').select('id').eq('title', book.title).maybeSingle();
+            if (!existingCat) {
+              await supabase.from('book_catalog').insert({
+                title: book.title,
+                authors: book.authors,
+                thumbnail: book.thumbnail
+              });
+            }
+
             get().fetchUserStats();
             get().fetchPublicBooks();
           } catch (error) {
