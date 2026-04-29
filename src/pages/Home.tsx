@@ -16,15 +16,15 @@ const JSZip = (JSZipLib as any).default || JSZipLib;
 const DashboardCard: React.FC<{ label: string; value: number | string; icon: React.ReactNode; color: string }> = ({ label, value, icon, color }) => (
   <motion.div 
     whileHover={{ y: -5, scale: 1.02 }}
-    className="clay-card p-6 rounded-[2rem] flex flex-col items-center justify-center relative overflow-hidden group border-slate-900/5 bg-white"
+    className="clay-card p-3 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] flex flex-col items-center justify-center relative overflow-hidden group border-slate-900/5 bg-white"
   >
     <div className={`absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity bg-gradient-to-br ${color}`} />
     <div className="z-10 flex flex-col items-center text-center">
-      <div className="mb-3 p-3 rounded-2xl bg-slate-50 text-slate-800 group-hover:scale-110 transition-transform border-2 border-slate-900/5">
-        {icon}
+      <div className="mb-2 sm:mb-3 p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-50 text-slate-800 group-hover:scale-110 transition-transform border-2 border-slate-900/5">
+        {React.cloneElement(icon as React.ReactElement, { className: "w-4 h-4 sm:w-6 sm:h-6" })}
       </div>
-      <span className="text-3xl font-black tracking-tighter mb-1 text-slate-900">{value}</span>
-      <span className="text-sm font-black uppercase tracking-[0.2em] text-slate-400">{label}</span>
+      <span className="text-xl sm:text-3xl font-black tracking-tighter mb-0 sm:mb-1 text-slate-900">{value}</span>
+      <span className="text-[10px] sm:text-sm font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] text-slate-400">{label}</span>
     </div>
   </motion.div>
 );
@@ -179,7 +179,7 @@ export const Home: React.FC = () => {
       </header>
 
       {/* Stats Dashboard */}
-      <section className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 mb-14">
+      <section className="grid grid-cols-3 sm:grid-cols-3 gap-3 sm:gap-6 mb-10 sm:mb-14">
         <DashboardCard label="弃读书目" value={stats.total} icon={<Zap className="w-6 h-6 text-brand-yellow" />} color="from-brand-yellow/30" />
         <DashboardCard label="有空再读" value={stats.later} icon={<TrendingUp className="w-6 h-6 text-brand-blue" />} color="from-brand-blue/30" />
         <DashboardCard label="避雷清单" value={stats.avoid} icon={<Skull className="w-6 h-6 text-brand-orange" />} color="from-brand-orange/30" />
