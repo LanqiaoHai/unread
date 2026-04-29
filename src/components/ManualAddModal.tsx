@@ -1,22 +1,26 @@
 import React, { useState, useRef } from 'react';
-import { X, BookPlus, Upload, Loader2 } from 'lucide-react';
+import { X, BookPlus, Upload, Loader2, Star, Skull } from 'lucide-react';
 import Tesseract from 'tesseract.js';
 import type { Book } from '../types';
 
 interface ManualAddModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (book: Book) => void;
+  onAdd: (book: Book & { score: number }) => void;
+}
+
+interface FormState extends Book {
+  score: number;
 }
 
 export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose, onAdd }) => {
-  const [formData, setFormData] = useState<Book>({
+  const [formData, setFormData] = useState<FormState>({
     id: '',
     title: '',
     authors: [],
     thumbnail: '',
     description: '',
-    score: 0 // Adding initial score
+    score: 0
   });
   const [ratingType, setRatingType] = useState<'later' | 'avoid' | null>(null);
   const [hoverRating, setHoverRating] = useState(0);
@@ -43,10 +47,9 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
               { logger: m => console.log(m) }
             );
             
-            // Basic cleanup of extracted text (take the first few meaningful lines)
             const cleaned = text.split('\n').map(t => t.trim()).filter(t => t.length > 1).join(' ');
             if (cleaned) {
-              setFormData(prev => ({ ...prev, title: cleaned.substring(0, 50) })); // Truncate just in case
+              setFormData(prev => ({ ...prev, title: cleaned.substring(0, 50) }));
             }
           } catch (err) {
             console.error("OCR Failed:", err);
@@ -66,15 +69,12 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
       return;
     }
     
-    // Instead of directly adding, we navigate to snapshot for final details (reason, progress, etc.)
-    // to keep the workflow consistent with search results.
-    const completeBook: Book = {
+    onAdd({
       ...formData,
       id: crypto.randomUUID()
-    };
+    }); 
     
-    onAdd(completeBook); 
-    setFormData({ id: '', title: '', authors: [], thumbnail: '', description: '' });
+    setFormData({ id: '', title: '', authors: [], thumbnail: '', description: '', score: 0 });
     setRatingType(null);
     onClose();
   };
@@ -98,7 +98,6 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Custom File Upload Section */}
           <div className="space-y-3">
              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">图书封面</label>
              <div 
@@ -187,7 +186,7 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
                           key={star} 
                           onMouseEnter={() => ratingType === 'later' && setHoverRating(star)}
                           onMouseLeave={() => setHoverRating(0)}
-                          onClick={(e) => { e.stopPropagation(); setRatingType('later'); setFormData(p => ({ ...p, score: star })); }}
+                          onClick={(e: React.MouseEvent) => { e.stopPropagation(); setRatingType('later'); setFormData(p => ({ ...p, score: star })); }}
                           className={`w-5 h-5 cursor-pointer transition-all ${star <= (hoverRating || (ratingType === 'later' ? formData.score : 0)) ? 'text-brand-yellow fill-brand-yellow' : 'text-slate-200'}`} 
                         />
                       ))}
@@ -208,7 +207,7 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
                           key={skull} 
                           onMouseEnter={() => ratingType === 'avoid' && setHoverRating(skull)}
                           onMouseLeave={() => setHoverRating(0)}
-                          onClick={(e) => { e.stopPropagation(); setRatingType('avoid'); setFormData(p => ({ ...p, score: -skull })); }}
+                          onClick={(e: React.MouseEvent) => { e.stopPropagation(); setRatingType('avoid'); setFormData(p => ({ ...p, score: -skull })); }}
                           className={`w-5 h-5 cursor-pointer transition-all ${skull <= (hoverRating || (ratingType === 'avoid' ? Math.abs(formData.score) : 0)) ? 'text-brand-orange fill-brand-orange' : 'text-slate-200'}`} 
                         />
                       ))}
