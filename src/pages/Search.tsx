@@ -64,8 +64,8 @@ export const Search: React.FC = () => {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="输入书名、作者或 ISBN..."
-          className="w-full bg-white border-4 border-slate-900 px-8 py-6 rounded-full text-xl outline-none focus:ring-8 focus:ring-brand-yellow/30 transition-all font-bold placeholder:text-slate-200"
+          placeholder="只能搜索已上传到unread的图书"
+          className="w-full bg-white border-4 border-slate-900 px-8 py-6 rounded-full text-xl outline-none focus:ring-8 focus:ring-brand-yellow/30 transition-all font-bold placeholder:text-slate-300"
         />
         <button
           type="submit"

@@ -57,8 +57,12 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
     return (
       <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xl z-[100] flex items-center justify-center p-6">
         <div className="glass-card max-w-md w-full rounded-[3rem] p-10 bg-white shadow-2xl relative text-center">
-          <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 transition-colors">
-             <X className="w-6 h-6" />
+          <button 
+            type="button"
+            onClick={onClose} 
+            className="absolute top-4 right-4 z-50 p-4 text-slate-400 hover:text-slate-900 active:scale-75 transition-all btn-bouncy"
+          >
+             <X className="w-8 h-8" />
           </button>
           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Settings className="w-8 h-8 text-slate-400" />
@@ -73,8 +77,12 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xl z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
       <div className="glass-card max-w-md w-full bg-white rounded-[3rem] p-10 shadow-2xl relative border-4 border-slate-900 max-h-[90vh] overflow-y-auto">
-        <button onClick={onClose} className="absolute top-8 right-8 text-slate-400 hover:text-slate-900 transition-colors btn-bouncy">
-          <X className="w-6 h-6" />
+        <button 
+          type="button"
+          onClick={onClose} 
+          className="absolute top-4 right-4 z-50 p-4 text-slate-400 hover:text-slate-900 active:scale-75 transition-all btn-bouncy"
+        >
+          <X className="w-8 h-8" />
         </button>
         <h2 className="text-3xl font-black text-slate-900 mb-2 flex items-center gap-3 tracking-tighter">
           <Settings className="w-8 h-8 text-brand-blue" /> 个人资料

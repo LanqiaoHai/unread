@@ -43,8 +43,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xl z-[200] flex items-center justify-center p-6 animate-in fade-in duration-300">
       <div className="glass-card max-w-sm w-full bg-white rounded-[3rem] p-10 shadow-2xl relative border-4 border-slate-900 btn-bouncy">
         <button 
+          type="button"
           onClick={onClose} 
-          className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 active:scale-75 transition-all btn-bouncy"
+          className="absolute top-4 right-4 z-50 p-4 text-slate-400 hover:text-slate-900 active:scale-75 transition-all btn-bouncy"
         >
           <X className="w-8 h-8" />
         </button>
