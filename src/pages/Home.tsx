@@ -184,8 +184,8 @@ export const Home: React.FC = () => {
         <DashboardCard label="有空再读" value={stats.later} icon={<TrendingUp className="w-6 h-6 text-brand-blue" />} color="from-brand-blue/30" />
         <DashboardCard label="避雷清单" value={stats.avoid} icon={<Skull className="w-6 h-6 text-brand-orange" />} color="from-brand-orange/30" />
         <DashboardCard label="收到点赞" value={stats.likes} icon={<Heart className="w-5 h-5 text-red-400" />} color="from-red-100" />
-        <DashboardCard label="被收藏" value={stats.favs} icon={<Bookmark className="w-5 h-5 text-brand-blue" />} color="from-blue-100" />
-        <DashboardCard label="评论交流" value={stats.comments} icon={<MessageCircle className="w-5 h-5 text-brand-green" />} color="from-brand-green/20" />
+        <DashboardCard label="我的收藏" value={stats.favs} icon={<Bookmark className="w-5 h-5 text-brand-blue" />} color="from-blue-100" />
+        <DashboardCard label="参与评论" value={stats.comments} icon={<MessageCircle className="w-5 h-5 text-brand-green" />} color="from-brand-green/20" />
       </section>
 
       {/* Tabs */}

@@ -18,6 +18,7 @@ interface UnreadState {
   syncFromLocalStorage: () => Promise<void>;
   fetchPublicBooks: () => Promise<void>;
   toggleLike: (bookId: string) => Promise<void>;
+  toggleFavorite: (bookId: string) => Promise<void>;
   fetchUserStats: () => Promise<void>;
   fetchBookComments: (bookId: string) => Promise<any[]>;
   addComment: (bookId: string, content: string) => Promise<void>;
@@ -125,14 +126,21 @@ export const useStore = create<UnreadState>()(
         const userId = session?.user?.id;
 
         if (data) {
-          // Fetch current user's likes to determine isLiked status
+          // Fetch current user's likes and favorites to determine status
           let userLikedIds: string[] = [];
+          let userFavoritedIds: string[] = [];
           if (userId) {
             const { data: myLikes } = await supabase
               .from('likes')
               .select('book_id')
               .eq('user_id', userId);
             if (myLikes) userLikedIds = myLikes.map(l => l.book_id);
+
+            const { data: myFavs } = await supabase
+              .from('favorites')
+              .select('book_id')
+              .eq('user_id', userId);
+            if (myFavs) userFavoritedIds = myFavs.map(f => f.book_id);
           }
 
           const mapped = data.map(b => ({
@@ -148,7 +156,8 @@ export const useStore = create<UnreadState>()(
             username: b.user_display_name,
             likesCount: b.likes?.[0]?.count || 0,
             commentsCount: b.comments?.[0]?.count || 0,
-            isLiked: userLikedIds.includes(b.id)
+            isLiked: userLikedIds.includes(b.id),
+            isFavorited: userFavoritedIds.includes(b.id)
           }));
           set({ publicBooks: mapped });
         }
@@ -201,19 +210,49 @@ export const useStore = create<UnreadState>()(
         get().fetchPublicBooks(); // Refresh
       },
 
+      toggleFavorite: async (bookId) => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        const { data: existing } = await supabase
+          .from('favorites')
+          .select('*')
+          .eq('book_id', bookId)
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+
+        if (existing) {
+          await supabase.from('favorites').delete().eq('id', existing.id);
+        } else {
+          await supabase.from('favorites').insert({ book_id: bookId, user_id: session.user.id });
+        }
+        
+        get().fetchPublicBooks();
+        get().fetchUserStats();
+      },
+
       fetchUserStats: async () => {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return;
 
         try {
-          // Simplistic counts for now: get all likes on user's public books
+          // Changed logic: Dashboard now shows stats based on the user's *actions*
+          // likes: how many likes received on their books (keeping this as is for now, or did user want this changed? User only mentioned comments and favorites. We will keep likes as 'received likes' for now, but rename comments/favorites)
           const { data: myBooks } = await supabase.from('books').select('id').eq('uid', session.user.id).eq('is_public', true);
+          let receivedLikes = 0;
           if (myBooks && myBooks.length > 0) {
             const bookIds = myBooks.map(b => b.id);
-            const { count: likes } = await supabase.from('likes').select('*', { count: 'exact', head: true }).in('book_id', bookIds);
-            const { count: comments } = await supabase.from('comments').select('*', { count: 'exact', head: true }).in('book_id', bookIds);
-            set({ stats: { likes: likes || 0, favs: 0, comments: comments || 0 } });
+            const { count } = await supabase.from('likes').select('*', { count: 'exact', head: true }).in('book_id', bookIds);
+            receivedLikes = count || 0;
           }
+
+          // Count comments user has posted
+          const { count: myComments } = await supabase.from('comments').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id);
+          
+          // Count favorites user has made
+          const { count: myFavs } = await supabase.from('favorites').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id);
+
+          set({ stats: { likes: receivedLikes, favs: myFavs || 0, comments: myComments || 0 } });
         } catch (e) { console.error(e); }
       },
 

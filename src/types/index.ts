@@ -16,6 +16,7 @@ export interface AbandonedBook extends Book {
   likesCount?: number;
   commentsCount?: number;
   isLiked?: boolean;
+  isFavorited?: boolean;
   username?: string; // Cache the uploader's name
   uid?: string;
   user_avatar?: string;

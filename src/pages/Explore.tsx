@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, Sparkles, Compass, Ghost, Quote, Star, Loader2, X, Send, Check, Zap } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Sparkles, Compass, Ghost, Quote, Star, Loader2, X, Send, Check, Zap, Bookmark } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { AbandonedBook } from '../types';
 import { supabase } from '../lib/supabase';
 
 export const Explore: React.FC = () => {
-  const { publicBooks, fetchPublicBooks, toggleLike, addComment, fetchBookComments } = useStore();
+  const { publicBooks, fetchPublicBooks, toggleLike, toggleFavorite, addComment, fetchBookComments } = useStore();
   const [activeTab, setActiveTab] = useState<'community' | 'me'>('community');
   const [loading, setLoading] = useState(true);
 
@@ -75,9 +75,6 @@ export const Explore: React.FC = () => {
     }
   }, [publicBooks, fetchBookComments]);
 
-  const handleLike = (id: string) => {
-    toggleLike(id);
-  };
 
   const handleOpenComments = async (book: AbandonedBook) => {
     setActiveBook(book);
@@ -123,7 +120,7 @@ export const Explore: React.FC = () => {
 
   const filteredBooks = activeTab === 'community' 
     ? publicBooks 
-    : publicBooks.filter(b => b.uid === currentUser);
+    : publicBooks.filter(b => b.uid === currentUser || b.isFavorited);
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-2xl mx-auto pb-40 px-4">
@@ -228,11 +225,17 @@ export const Explore: React.FC = () => {
               <div className="flex justify-between items-center pt-8 mt-8 border-t-4 border-slate-900/5">
                 <div className="flex gap-6">
                   <button 
-                    onClick={() => handleLike(post.id)}
-                    className={`flex items-center gap-3 font-black text-sm transition-all btn-bouncy ${post.isLiked ? 'text-brand-orange' : 'text-slate-200 hover:text-red-500'}`}
+                    onClick={() => toggleLike(post.id)}
+                    className={`flex items-center gap-3 font-black text-sm transition-all btn-bouncy ${post.isLiked ? 'text-brand-orange' : 'text-slate-200 hover:text-brand-orange'}`}
                   >
                     <Heart className={`w-8 h-8 ${post.isLiked ? 'fill-brand-orange' : ''}`} />
                     <span className="text-xl">{post.likesCount}</span>
+                  </button>
+                  <button 
+                    onClick={() => toggleFavorite(post.id)}
+                    className={`flex items-center gap-3 font-black text-sm transition-all btn-bouncy ${post.isFavorited ? 'text-brand-blue' : 'text-slate-200 hover:text-brand-blue'}`}
+                  >
+                    <Bookmark className={`w-8 h-8 ${post.isFavorited ? 'fill-brand-blue' : ''}`} />
                   </button>
                   <button 
                     onClick={() => handleOpenComments(post)}
