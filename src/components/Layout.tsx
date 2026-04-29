@@ -18,8 +18,8 @@ export const Layout: React.FC = () => {
   return (
     <div className="min-h-screen bg-bg-cream text-slate-800 selection:bg-brand-yellow/30">
       {/* Navigation (Always Top) */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 w-[90%] max-w-lg glass-card p-3 z-50 border-slate-900 shadow-xl">
-        <div className="flex justify-between items-center px-4">
+      <nav className="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 w-[94%] sm:w-[90%] max-w-lg glass-card p-1 sm:p-3 z-50 border-slate-900 shadow-xl">
+        <div className="flex justify-between items-center px-1 sm:px-4">
           {/* Login Entry / Settings - Now First */}
           <button 
             onClick={() => setShowSettings(true)}
@@ -55,17 +55,17 @@ export const Layout: React.FC = () => {
           <NavLink 
             to="/search" 
             className={({ isActive }) => 
-              `p-4 rounded-3xl bg-brand-orange text-white shadow-lg transition-all btn-bouncy ${isActive ? 'rotate-12 scale-110' : ''}`
+              `p-3 sm:p-4 rounded-3xl bg-brand-orange text-white shadow-lg transition-all btn-bouncy ${isActive ? 'rotate-12 scale-110' : ''}`
             }
             title="新增记录"
           >
-            <Plus className="w-7 h-7 stroke-[3px]" />
+            <Plus className="w-6 h-6 sm:w-7 sm:h-7 stroke-[3px]" />
           </NavLink>
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-2xl mx-auto px-6 pt-32 pb-12">
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-36 sm:pt-40 pb-12">
         <Outlet />
       </main>
 

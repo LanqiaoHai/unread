@@ -53,8 +53,8 @@ export const Search: React.FC = () => {
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-2xl mx-auto pb-40">
-      <header className="mb-14 text-center">
-        <h1 className="text-5xl font-black tracking-tighter mb-4 text-slate-900 uppercase">
+      <header className="mb-10 sm:mb-14 text-center">
+        <h1 className="text-4xl sm:text-5xl font-black tracking-tighter mb-4 text-slate-900 uppercase">
           查找 <span className="text-brand-blue underline decoration-brand-yellow decoration-8">图书</span>
         </h1>
       </header>
@@ -64,15 +64,15 @@ export const Search: React.FC = () => {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="只能搜索已上传到unread的图书"
-          className="w-full bg-white border-4 border-slate-900 px-8 py-6 rounded-full text-xl outline-none focus:ring-8 focus:ring-brand-yellow/30 transition-all font-bold placeholder:text-slate-300"
+          placeholder="搜索已上传图书..."
+          className="w-full bg-white border-4 border-slate-900 px-6 sm:px-8 py-5 sm:py-6 rounded-full text-lg sm:text-xl outline-none focus:ring-8 focus:ring-brand-yellow/30 transition-all font-bold placeholder:text-slate-300"
         />
         <button
           type="submit"
           disabled={loading}
-          className="absolute right-4 top-4 bottom-4 px-10 bg-brand-orange text-white rounded-full font-black flex items-center gap-3 transition-all active:scale-95 btn-bouncy disabled:opacity-50"
+          className="absolute right-2 sm:right-4 top-2 sm:top-4 bottom-2 sm:top-4 px-6 sm:px-10 bg-brand-orange text-white rounded-full font-black flex items-center gap-3 transition-all active:scale-95 btn-bouncy disabled:opacity-50"
         >
-          {loading ? <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" /> : <SearchIcon className="w-6 h-6 stroke-[3px]" />}
+          {loading ? <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" /> : <SearchIcon className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3px]" />}
           <span className="hidden sm:inline">搜索</span>
         </button>
       </form>

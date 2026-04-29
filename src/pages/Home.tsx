@@ -231,7 +231,7 @@ export const Home: React.FC = () => {
               key={book.id + book.abandonedAt}
               id={`book-card-${book.id}`}
               onClick={() => isSelectionMode && toggleSelection(book.id)}
-              className={`group glass-card p-10 border-slate-900 transition-all duration-500 relative cursor-pointer btn-bouncy ${
+              className={`group glass-card p-6 sm:p-10 border-slate-900 transition-all duration-500 relative cursor-pointer btn-bouncy ${
                 isSelectionMode && selectedIds.has(book.id) 
                   ? 'bg-brand-yellow/20 scale-[0.98]' 
                   : 'bg-white hover:rotate-1'
@@ -246,8 +246,8 @@ export const Home: React.FC = () => {
                 </div>
               )}
 
-              <div className="flex gap-10">
-                <div className="shrink-0 relative">
+              <div className="flex flex-col sm:flex-row gap-6 sm:gap-10">
+                <div className="shrink-0 relative flex justify-center sm:block">
                   {book.thumbnail ? (
                     <img 
                       src={book.thumbnail} 

@@ -163,9 +163,9 @@ export const Explore: React.FC = () => {
           <p className="text-xl font-black tracking-widest text-slate-900">{activeTab === 'me' ? '你还没有发布过动态哦' : '书库目前空空如也'}</p>
         </div>
       ) : (
-        <div className="space-y-12">
+        <div className="space-y-8 sm:space-y-12">
           {filteredBooks.map((post) => (
-            <div key={post.id} className="clay-card p-10 border-4 border-slate-900 bg-white group hover:translate-y-[-8px] transition-all duration-500">
+            <div key={post.id} className="clay-card p-6 sm:p-10 border-4 border-slate-900 bg-white group hover:translate-y-[-8px] transition-all duration-500">
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-14 h-14 rounded-full cute-gradient-yellow border-4 border-slate-900 flex items-center justify-center font-black text-slate-900 shadow-md uppercase overflow-hidden shrink-0">
                   {post.user_avatar?.startsWith('http') ? (
@@ -194,12 +194,14 @@ export const Explore: React.FC = () => {
                 )}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-8 mb-8 items-start">
-                <img 
-                  src={post.thumbnail || 'https://via.placeholder.com/150'} 
-                  alt="Cover" 
-                  className="w-full sm:w-32 aspect-[2/3] object-cover rounded-2xl border-4 border-slate-900 shadow-lg group-hover:rotate-2 transition-transform" 
-                />
+              <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 mb-8 items-start">
+                <div className="w-full sm:w-32 flex justify-center sm:block">
+                  <img 
+                    src={post.thumbnail || 'https://via.placeholder.com/150'} 
+                    alt="Cover" 
+                    className="w-32 sm:w-32 aspect-[2/3] object-cover rounded-2xl border-4 border-slate-900 shadow-lg group-hover:rotate-2 transition-transform" 
+                  />
+                </div>
                 <div className="flex-1">
                   <h3 className="text-2xl font-black text-slate-900 mb-2">{post.title}</h3>
                   <div className="flex gap-1 mb-4">
@@ -287,9 +289,9 @@ export const Explore: React.FC = () => {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed bottom-0 left-0 right-0 max-w-2xl mx-auto bg-white rounded-t-[3.5rem] border-t-8 border-slate-900 z-[101] flex flex-col h-[75vh] shadow-2xl overflow-hidden"
+              className="fixed bottom-0 left-0 right-0 max-w-2xl mx-auto bg-white rounded-t-[2.5rem] sm:rounded-t-[3.5rem] border-t-8 border-slate-900 z-[101] flex flex-col h-[85vh] sm:h-[75vh] shadow-2xl overflow-hidden"
             >
-              <div className="p-10 pb-6 flex justify-between items-center bg-white sticky top-0 z-10 border-b-4 border-slate-50">
+              <div className="p-6 sm:p-10 pb-6 flex justify-between items-center bg-white sticky top-0 z-10 border-b-4 border-slate-50">
                 <div>
                   <h3 className="text-3xl font-black text-slate-900 tracking-tighter">书友交流</h3>
                   <p className="text-xs font-bold text-slate-300 uppercase tracking-widest mt-1">共 {comments.length} 条见解</p>
@@ -344,7 +346,7 @@ export const Explore: React.FC = () => {
                 )}
               </div>
 
-              <form onSubmit={handleAddComment} className="p-10 bg-slate-50 border-t-8 border-slate-100 flex gap-4 items-center">
+              <form onSubmit={handleAddComment} className="p-6 sm:p-10 bg-slate-50 border-t-8 border-slate-100 flex gap-4 items-center">
                 <div className="flex-1 relative">
                   <input 
                     type="text" 
