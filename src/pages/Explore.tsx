@@ -193,24 +193,27 @@ export const Explore: React.FC = () => {
                 )}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 mb-8 items-start">
-                <div className="w-full sm:w-32 flex justify-center sm:block">
+              <div className="flex flex-row gap-6 sm:gap-10 mb-8 items-center">
+                <div className="shrink-0">
                   <img 
                     src={post.thumbnail || 'https://via.placeholder.com/150'} 
                     alt="Cover" 
-                    className="w-32 sm:w-32 aspect-[2/3] object-cover rounded-2xl border-4 border-slate-900 shadow-lg group-hover:rotate-2 transition-transform" 
+                    className="w-20 h-28 sm:w-32 sm:h-48 object-cover rounded-[1.5rem] sm:rounded-2xl border-4 border-slate-900 shadow-[4px_4px_0_0_rgba(0,0,0,0.1)] group-hover:rotate-2 transition-transform" 
                   />
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-2xl font-black text-slate-900 mb-2">{post.title}</h3>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl sm:text-3xl font-black text-slate-900 truncate mb-1 sm:mb-2">{post.title}</h3>
+                  <p className="text-sm sm:text-base text-slate-400 font-bold truncate mb-3">{post.authors?.join(', ') || '未知作者'}</p>
+                  
                   <div className="flex gap-1 mb-4">
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} className={`w-4 h-4 ${i < Math.abs(post.score || 0) ? (post.score > 0 ? 'text-brand-yellow fill-brand-yellow' : 'text-slate-400 fill-slate-400') : 'text-slate-100 fill-slate-100'}`} />
                     ))}
                   </div>
-                  <div className="p-6 bg-bg-cream rounded-[2rem] border-4 border-slate-900 border-dashed relative">
-                    <Quote className="absolute -top-3 -left-3 w-8 h-8 text-brand-yellow/30" />
-                    <p className="text-base text-slate-700 italic font-bold leading-relaxed">
+
+                  <div className="p-4 sm:p-6 bg-bg-cream rounded-[1.5rem] sm:rounded-[2rem] border-4 border-slate-900 border-dashed relative">
+                    <Quote className="absolute -top-2 -left-2 w-6 h-6 text-brand-yellow/30" />
+                    <p className="text-sm sm:text-base text-slate-700 italic font-bold leading-tight line-clamp-3">
                       "{post.reason || '没有留下碎碎念。'}"
                     </p>
                   </div>

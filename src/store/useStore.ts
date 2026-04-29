@@ -215,45 +215,64 @@ export const useStore = create<UnreadState>()(
       },
 
       toggleLike: async (bookId) => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return;
+        const userId = (await supabase.auth.getSession()).data.session?.user?.id;
+        if (!userId) return;
 
-        // Check if already liked
-        const { data: existing } = await supabase
-          .from('likes')
-          .select('*')
-          .eq('book_id', bookId)
-          .eq('user_id', session.user.id)
-          .maybeSingle();
+        const currentBooks = get().publicBooks;
+        const targetBook = currentBooks.find(b => b.id === bookId);
+        if (!targetBook) return;
 
-        if (existing) {
-          await supabase.from('likes').delete().eq('id', existing.id);
-        } else {
-          await supabase.from('likes').insert({ book_id: bookId, user_id: session.user.id });
-        }
+        // Optimistic update
+        const wasLiked = targetBook.isLiked;
+        const nextLikesCount = wasLiked ? (targetBook.likesCount || 1) - 1 : (targetBook.likesCount || 0) + 1;
         
-        get().fetchPublicBooks(); // Refresh
+        set({
+          publicBooks: currentBooks.map(b => 
+            b.id === bookId ? { ...b, isLiked: !wasLiked, likesCount: nextLikesCount } : b
+          )
+        });
+
+        try {
+          if (wasLiked) {
+            await supabase.from('likes').delete().eq('book_id', bookId).eq('user_id', userId);
+          } else {
+            await supabase.from('likes').insert({ book_id: bookId, user_id: userId });
+          }
+        } catch (error) {
+          // Rollback on failure
+          set({ publicBooks: currentBooks });
+          console.error("Like failed:", error);
+        }
       },
 
       toggleFavorite: async (bookId) => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) return;
+        const userId = (await supabase.auth.getSession()).data.session?.user?.id;
+        if (!userId) return;
 
-        const { data: existing } = await supabase
-          .from('favorites')
-          .select('*')
-          .eq('book_id', bookId)
-          .eq('user_id', session.user.id)
-          .maybeSingle();
+        const currentBooks = get().publicBooks;
+        const targetBook = currentBooks.find(b => b.id === bookId);
+        if (!targetBook) return;
 
-        if (existing) {
-          await supabase.from('favorites').delete().eq('id', existing.id);
-        } else {
-          await supabase.from('favorites').insert({ book_id: bookId, user_id: session.user.id });
+        // Optimistic update
+        const wasFavorited = targetBook.isFavorited;
+        set({
+          publicBooks: currentBooks.map(b => 
+            b.id === bookId ? { ...b, isFavorited: !wasFavorited } : b
+          )
+        });
+
+        try {
+          if (wasFavorited) {
+            await supabase.from('favorites').delete().eq('book_id', bookId).eq('user_id', userId);
+          } else {
+            await supabase.from('favorites').insert({ book_id: bookId, user_id: userId });
+          }
+          get().fetchUserStats();
+        } catch (error) {
+          // Rollback
+          set({ publicBooks: currentBooks });
+          console.error("Favorite failed:", error);
         }
-        
-        get().fetchPublicBooks();
-        get().fetchUserStats();
       },
 
       fetchUserStats: async () => {
