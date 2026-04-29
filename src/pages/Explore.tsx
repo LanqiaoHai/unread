@@ -137,7 +137,7 @@ export const Explore: React.FC = () => {
           onClick={() => handleTabChange('community')}
           className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-[1.5rem] font-black transition-all ${activeTab === 'community' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
         >
-          <Compass className="w-6 h-6" /> 社区大家庭
+          <Compass className="w-6 h-6" /> 看看大家
         </button>
         <button 
           onClick={() => handleTabChange('me')}
