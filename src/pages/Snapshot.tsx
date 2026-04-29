@@ -72,49 +72,8 @@ export const Snapshot: React.FC = () => {
         )}
 
         <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait">
           {step === 1 && (
-            <motion.div
-              key="step1"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-8"
-            >
-              <div className="flex gap-8 items-center">
-                {book.thumbnail ? (
-                  <img src={book.thumbnail} alt={book.title} className="w-24 h-36 object-cover rounded-2xl border-4 border-slate-900 shadow-md" />
-                ) : (
-                  <div className="w-24 h-36 bg-slate-50 border-4 border-slate-900 rounded-2xl flex items-center justify-center text-slate-200">无封面</div>
-                )}
-                <div>
-                  <h2 className="text-2xl font-black text-slate-900 mb-2">{book.title}</h2>
-                  <p className="text-slate-400 font-bold">{book.authors?.join(', ') || '未知作者'}</p>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">你的不读初衷？</label>
-                <div className="grid grid-cols-2 gap-4">
-                  <button 
-                    onClick={() => { setScore(3); setStep(2); }}
-                    className="p-8 glass-card border-slate-900 hover:bg-brand-yellow/10 transition-all btn-bouncy group"
-                  >
-                    <Star className="w-10 h-10 text-brand-yellow mx-auto mb-4 group-hover:scale-125 transition-transform" />
-                    <span className="font-black text-slate-800">以后再读</span>
-                  </button>
-                  <button 
-                    onClick={() => { setScore(-3); setStep(2); }}
-                    className="p-8 glass-card border-slate-900 hover:bg-brand-orange/10 transition-all btn-bouncy group"
-                  >
-                    <Skull className="w-10 h-10 text-brand-orange mx-auto mb-4 group-hover:scale-125 transition-transform" />
-                    <span className="font-black text-slate-800">果断避雷</span>
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {step === 2 && (
             <motion.div
               key="step2"
               initial={{ opacity: 0, x: 20 }}
@@ -134,17 +93,17 @@ export const Snapshot: React.FC = () => {
               </div>
 
               <div className="flex gap-4">
-                <button onClick={() => setStep(1)} className="flex-1 py-5 border-4 border-slate-900 rounded-3xl font-black text-slate-400 hover:text-slate-600 transition-all btn-bouncy">
+                <button onClick={() => navigate(-1)} className="flex-1 py-5 border-4 border-slate-900 rounded-3xl font-black text-slate-400 hover:text-slate-600 transition-all btn-bouncy">
                   上一步
                 </button>
-                <button onClick={() => setStep(3)} className="flex-[2] py-5 bg-brand-blue text-white rounded-3xl font-black shadow-lg shadow-brand-blue/20 transition-all btn-bouncy">
+                <button onClick={() => setStep(2)} className="flex-[2] py-5 bg-brand-blue text-white rounded-3xl font-black shadow-lg shadow-brand-blue/20 transition-all btn-bouncy">
                   下一步
                 </button>
               </div>
             </motion.div>
           )}
 
-          {step === 3 && (
+          {step === 2 && (
             <motion.div
               key="step3"
               initial={{ opacity: 0, x: 20 }}
@@ -191,7 +150,7 @@ export const Snapshot: React.FC = () => {
               </div>
 
               <div className="flex gap-4">
-                <button onClick={() => setStep(2)} className="flex-1 py-5 border-4 border-slate-900 rounded-3xl font-black text-slate-400 hover:text-slate-600 transition-all btn-bouncy">
+                <button onClick={() => setStep(1)} className="flex-1 py-5 border-4 border-slate-900 rounded-3xl font-black text-slate-400 hover:text-slate-600 transition-all btn-bouncy">
                   重写
                 </button>
                 <button 

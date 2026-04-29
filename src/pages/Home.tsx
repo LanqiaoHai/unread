@@ -246,42 +246,40 @@ export const Home: React.FC = () => {
                 </div>
               )}
 
-              <div className="flex flex-col sm:flex-row gap-6 sm:gap-10">
-                <div className="shrink-0 relative flex justify-center sm:block">
+              <div className="flex flex-row gap-6 sm:gap-10">
+                <div className="shrink-0 relative">
                   {book.thumbnail ? (
                     <img 
                       src={book.thumbnail} 
                       alt={book.title} 
-                      className="w-32 h-48 object-cover rounded-[2rem] border-4 border-slate-900 shadow-[8px_8px_0_0_rgba(0,0,0,0.1)] group-hover:scale-105 transition-transform duration-500" 
+                      className="w-20 h-28 sm:w-32 sm:h-48 object-cover rounded-[1.5rem] sm:rounded-[2rem] border-4 border-slate-900 shadow-[4px_4px_0_0_rgba(0,0,0,0.1)] group-hover:scale-105 transition-transform duration-500" 
                     />
                   ) : (
-                    <div className="w-32 h-48 bg-slate-50 flex items-center justify-center rounded-[2rem] border-4 border-slate-900 shadow-[8px_8px_0_0_rgba(0,0,0,0.1)]">
-                      <BookOpen className="w-16 h-16 text-slate-200" />
+                    <div className="w-20 h-28 sm:w-32 sm:h-48 bg-slate-50 flex items-center justify-center rounded-[1.5rem] sm:rounded-[2rem] border-4 border-slate-900 shadow-[4px_4px_0_0_rgba(0,0,0,0.1)]">
+                      <BookOpen className="w-10 h-10 sm:w-16 sm:h-16 text-slate-200" />
                     </div>
                   )}
                 </div>
                 
-                <div className="flex-1 min-w-0 flex flex-col">
+                <div className="flex-1 min-w-0 flex flex-col justify-center">
                   {!isSelectionMode && (
-                    <div className="flex justify-end gap-3 mb-2 -mt-4">
-                       <button onClick={(e) => { e.stopPropagation(); navigate('/snapshot', { state: { book, isEdit: true, existingData: book } }); }} className="p-3 bg-brand-yellow/10 hover:bg-brand-yellow text-brand-yellow hover:text-slate-900 rounded-2xl transition-all"><Edit className="w-6 h-6" /></button>
-                       <button onClick={(e) => { e.stopPropagation(); handleExportSingle(book.id); }} className="p-3 bg-brand-blue/10 hover:bg-brand-blue text-brand-blue hover:text-white rounded-2xl transition-all"><Download className="w-6 h-6" /></button>
-                       <button onClick={(e) => { e.stopPropagation(); removeAbandonedBook(book.id); }} className="p-3 bg-brand-red/10 hover:bg-brand-red text-brand-red hover:text-white rounded-2xl transition-all"><Trash2 className="w-6 h-6" /></button>
+                    <div className="flex justify-end gap-2 mb-2">
+                       <button onClick={(e) => { e.stopPropagation(); navigate('/snapshot', { state: { book, isEdit: true, existingData: book } }); }} className="p-2 bg-brand-yellow/10 hover:bg-brand-yellow text-brand-yellow hover:text-slate-900 rounded-xl transition-all"><Edit className="w-4 h-4" /></button>
+                       <button onClick={(e) => { e.stopPropagation(); handleExportSingle(book.id); }} className="p-2 bg-brand-blue/10 hover:bg-brand-blue text-brand-blue hover:text-white rounded-xl transition-all"><Download className="w-4 h-4" /></button>
+                       <button onClick={(e) => { e.stopPropagation(); removeAbandonedBook(book.id); }} className="p-2 bg-brand-red/10 hover:bg-brand-red text-brand-red hover:text-white rounded-xl transition-all"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   )}
                   
-                  <h3 className="text-3xl font-black truncate mb-2 text-slate-900 pr-10">{book.title}</h3>
-                  <p className="text-base text-slate-400 mb-6 font-bold">{book.authors?.join(', ') || '未知作者'}</p>
+                  <h3 className="text-xl sm:text-3xl font-black truncate mb-1 text-slate-900 pr-10">{book.title}</h3>
+                  <p className="text-sm sm:text-base text-slate-400 mb-3 font-bold truncate">{book.authors?.join(', ') || '未知作者'}</p>
                   
-                  <div className="mb-6">
+                  <div className="mb-3">
                     {renderRating(book.score)}
                   </div>
                   
-                  <div className="mt-auto pt-6 flex flex-wrap items-center gap-4 text-xs font-black tracking-widest text-slate-300 uppercase italic">
-                    <Calendar className="w-4 h-4" />
+                  <div className="mt-auto flex items-center gap-2 text-[10px] font-black tracking-widest text-slate-300 uppercase italic">
+                    <Calendar className="w-3 h-3" />
                     <span>{formatDate(book.abandonedAt)}</span>
-                    <span className="opacity-40">●</span>
-                    <span className="text-brand-blue">进度: {book.progress || '未记录'}</span>
                   </div>
                 </div>
               </div>
