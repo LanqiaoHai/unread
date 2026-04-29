@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { supabase } from '../lib/supabase';
-import { X, Settings, CheckCircle2, LogOut } from 'lucide-react';
+import { X, Settings, CheckCircle2, LogOut, Upload } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 
 export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }> = ({ user, onClose }) => {
@@ -13,8 +13,20 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
   
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const presets = ['👻', '🐱', '🐶', '🦊', '🐷', '🐸', '🌟', '🔥', '📚', '🚀', '👽', '👾'];
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,15 +101,32 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
               </div>
               
               {isCustomAvatar ? (
-                <div className="space-y-2">
+                <div className="space-y-4">
+                  <div 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full h-32 bg-slate-50 border-4 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-brand-blue hover:bg-brand-blue/5 transition-all group overflow-hidden relative"
+                  >
+                    {avatar.startsWith('http') || avatar.startsWith('data:image') ? (
+                      <>
+                        <img src={avatar} alt="Avatar Preview" className="w-full h-full object-contain p-2" />
+                        <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                          <span className="text-white font-black text-sm tracking-widest bg-slate-900/60 px-4 py-2 rounded-full">点击更换</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-8 h-8 text-slate-300 group-hover:text-brand-blue mb-2 transition-colors" />
+                        <span className="font-bold text-slate-400 group-hover:text-brand-blue">点击上传图片</span>
+                      </>
+                    )}
+                  </div>
                   <input 
-                    type="text" 
-                    value={avatar} 
-                    onChange={(e) => setAvatar(e.target.value)} 
-                    className="w-full bg-slate-50 border-4 border-slate-200 px-6 py-4 rounded-2xl outline-none focus:border-brand-yellow focus:bg-white transition-all text-slate-900 font-bold placeholder:text-slate-300" 
-                    placeholder="输入 emoji 或粘贴图片网址 (http://...)" 
+                    type="file" 
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="hidden" 
                   />
-                  <p className="text-xs text-slate-400 font-bold ml-2">可以输入任何 Emoji 或者粘贴一张公开的图片链接。</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-6 gap-3">
