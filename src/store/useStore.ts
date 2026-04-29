@@ -22,6 +22,7 @@ interface UnreadState {
   fetchUserStats: () => Promise<void>;
   fetchBookComments: (bookId: string) => Promise<any[]>;
   addComment: (bookId: string, content: string) => Promise<void>;
+  deleteComment: (commentId: string) => Promise<void>;
 }
 
 export const useStore = create<UnreadState>()(
@@ -89,18 +90,22 @@ export const useStore = create<UnreadState>()(
         const user = session?.user;
 
         if (user) {
-          try {
-            const { error } = await supabase
-              .from('books')
-              .delete()
-              .eq('id', id)
-              .eq('uid', user.id);
+            const isAdmin = user.user_metadata?.is_admin === true;
+            let query = supabase.from('books').delete().eq('id', id);
+            
+            if (!isAdmin) {
+              query = query.eq('uid', user.id);
+            }
+
+            const { error } = await query;
             if (error) throw error;
             
             // Immediately update local state for responsiveness
             set((state) => ({
               abandonedBooks: state.abandonedBooks.filter((b) => b.id !== id),
+              publicBooks: state.publicBooks.filter((b) => b.id !== id),
             }));
+            get().fetchUserStats();
           } catch (error) {
             console.error("Error removing book from Supabase:", error);
           }
@@ -187,6 +192,25 @@ export const useStore = create<UnreadState>()(
         
         // Ensure public books are refreshed immediately
         await get().fetchPublicBooks(); 
+        await get().fetchUserStats();
+      },
+
+      deleteComment: async (commentId: string) => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        const isAdmin = session.user.user_metadata?.is_admin === true;
+        let query = supabase.from('comments').delete().eq('id', commentId);
+
+        if (!isAdmin) {
+          query = query.eq('user_id', session.user.id);
+        }
+
+        const { error } = await query;
+        if (error) throw error;
+        
+        await get().fetchPublicBooks();
+        await get().fetchUserStats();
       },
 
       toggleLike: async (bookId) => {

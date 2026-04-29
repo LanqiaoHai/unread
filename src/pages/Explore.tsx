@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Share2, Sparkles, Compass, Ghost, Quote, Star, Loader2, X, Send, Check, Zap, Bookmark } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Sparkles, Compass, Ghost, Quote, Star, Loader2, X, Send, Check, Zap, Bookmark, Trash2 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { AbandonedBook } from '../types';
 import { supabase } from '../lib/supabase';
 
 export const Explore: React.FC = () => {
-  const { publicBooks, fetchPublicBooks, toggleLike, toggleFavorite, addComment, fetchBookComments } = useStore();
+  const { publicBooks, fetchPublicBooks, toggleLike, toggleFavorite, addComment, fetchBookComments, deleteComment, removeAbandonedBook } = useStore();
   const [activeTab, setActiveTab] = useState<'community' | 'me'>('community');
   const [loading, setLoading] = useState(true);
 
@@ -20,6 +20,7 @@ export const Explore: React.FC = () => {
   // Track comments for visible cards to show on-card previews
   const [previews, setPreviews] = useState<Record<string, any[]>>({});
   const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Toast state for share
   const [showToast, setShowToast] = useState(false);
@@ -54,6 +55,7 @@ export const Explore: React.FC = () => {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setCurrentUser(session?.user?.id || null);
+      setIsAdmin(session?.user?.user_metadata?.is_admin === true);
       await fetchPublicBooks();
       setLoading(false);
     };
@@ -178,6 +180,18 @@ export const Explore: React.FC = () => {
                     {new Date(post.abandonedAt).toLocaleDateString()}
                   </p>
                 </div>
+                {isAdmin && (
+                  <button 
+                    onClick={() => {
+                      if (window.confirm('管理员确定要删除这张卡片吗？')) {
+                        removeAbandonedBook(post.id);
+                      }
+                    }}
+                    className="ml-auto p-3 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all btn-bouncy"
+                  >
+                    <Trash2 className="w-6 h-6" />
+                  </button>
+                )}
               </div>
 
               <div className="flex flex-col sm:flex-row gap-8 mb-8 items-start">
@@ -303,9 +317,25 @@ export const Explore: React.FC = () => {
                       <div className="flex-1">
                         <div className="flex justify-between items-center mb-2">
                           <span className="font-black text-slate-900 text-md">{c.user_display_name}</span>
-                          <span className="text-[10px] font-black text-slate-200 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-md">
-                            {new Date(c.created_at).toLocaleDateString()}
-                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-[10px] font-black text-slate-200 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-md">
+                              {new Date(c.created_at).toLocaleDateString()}
+                            </span>
+                            {isAdmin && (
+                              <button 
+                                onClick={async () => {
+                                  if (window.confirm('管理员确定删除这条评论？')) {
+                                    await deleteComment(c.id);
+                                    const updated = await fetchBookComments(activeBook!.id);
+                                    setComments(updated);
+                                  }
+                                }}
+                                className="text-red-400 hover:text-red-600 transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
                         </div>
                         <p className="text-slate-600 font-bold text-md leading-relaxed whitespace-pre-wrap">{c.content}</p>
                       </div>
