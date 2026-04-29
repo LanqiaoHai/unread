@@ -17,8 +17,8 @@ export const Layout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-bg-cream text-slate-800 selection:bg-brand-yellow/30">
-      {/* Navigation (Always Top) */}
-      <nav className="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 w-[94%] sm:w-[90%] max-w-lg glass-card p-1 sm:p-3 z-50 border-slate-900 shadow-xl">
+      {/* Navigation (Always Top on Desktop, Bottom on Mobile) */}
+      <nav className="fixed bottom-6 sm:bottom-auto sm:top-6 left-1/2 -translate-x-1/2 w-[94%] sm:w-[90%] max-w-lg glass-card p-1 sm:p-3 z-50 border-slate-900 shadow-xl">
         <div className="flex justify-between items-center px-1 sm:px-4">
           {/* Login Entry / Settings - Now First */}
           <button 
@@ -65,7 +65,8 @@ export const Layout: React.FC = () => {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-36 sm:pt-40 pb-12">
+      {/* Main Content */}
+      <main className="max-w-2xl mx-auto px-4 sm:px-6 pt-10 sm:pt-40 pb-32 sm:pb-12">
         <Outlet />
       </main>
 

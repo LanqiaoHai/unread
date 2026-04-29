@@ -148,7 +148,7 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
             </div>
 
             <div>
-              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">为什么决定弃读？</label>
+              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">补充简介（可选）</label>
               <textarea
                 placeholder="记录一下此刻的想法..."
                 rows={3}

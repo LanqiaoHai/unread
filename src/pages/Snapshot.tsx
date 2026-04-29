@@ -123,7 +123,7 @@ export const Snapshot: React.FC = () => {
               className="space-y-8"
             >
               <div className="space-y-4">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">为什么不想读了？</label>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">为什么弃读？（这一句真心话会展示在广场上）</label>
                 <textarea
                   autoFocus
                   placeholder="说点真心话..."

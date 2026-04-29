@@ -179,7 +179,7 @@ export const Home: React.FC = () => {
       </header>
 
       {/* Stats Dashboard */}
-      <section className="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-14">
+      <section className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 mb-14">
         <DashboardCard label="弃读书目" value={stats.total} icon={<Zap className="w-6 h-6 text-brand-yellow" />} color="from-brand-yellow/30" />
         <DashboardCard label="有空再读" value={stats.later} icon={<TrendingUp className="w-6 h-6 text-brand-blue" />} color="from-brand-blue/30" />
         <DashboardCard label="避雷清单" value={stats.avoid} icon={<Skull className="w-6 h-6 text-brand-orange" />} color="from-brand-orange/30" />
@@ -222,7 +222,7 @@ export const Home: React.FC = () => {
       {displayedBooks.length === 0 ? (
         <div className="py-32 text-center opacity-30 flex flex-col items-center">
           <BookOpen className="w-20 h-20 mb-6 text-slate-200" />
-          <p className="text-xl font-black tracking-widest">这里空空如也，快去寻书吧！</p>
+          <p className="text-xl font-black tracking-widest">这里空空如也！</p>
         </div>
       ) : (
         <div className="grid gap-10">
