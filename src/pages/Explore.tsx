@@ -126,11 +126,10 @@ export const Explore: React.FC = () => {
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-2xl mx-auto pb-40 px-4">
-      <header className="mb-14 text-center">
-        <h1 className="text-5xl font-black tracking-tighter mb-4 text-slate-900 uppercase">
+      <header className="mb-10 sm:mb-14 text-center">
+        <h1 className="text-4xl sm:text-5xl font-black tracking-tighter mb-4 text-slate-900 uppercase">
           书友 <span className="text-brand-green underline decoration-brand-yellow decoration-8">广场</span>
         </h1>
-        <p className="text-slate-400 font-bold text-lg">这里的每一本书籍，都有一个未完待续的故事。</p>
       </header>
 
       {/* Tabs */}

@@ -37,12 +37,14 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
         data: { display_name: nickname, avatar_emoji: avatar }
       });
       if (error) throw error;
+      
       setSuccess(true);
       setTimeout(() => {
-        window.location.reload(); // Reload to refresh user info everywhere
-      }, 1000);
+        window.location.reload(); 
+      }, 800);
     } catch (err) {
       console.error(err);
+      alert('保存失败，请稍后重试');
     } finally {
       setLoading(false);
     }
