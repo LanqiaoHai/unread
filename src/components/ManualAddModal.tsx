@@ -174,8 +174,8 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
               <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">打分记录 *</label>
               <div className="grid grid-cols-2 gap-4">
                 <div 
-                  className={`p-4 rounded-3xl border-4 transition-all cursor-pointer ${ratingType === 'later' ? 'bg-brand-yellow/10 border-brand-yellow' : 'bg-slate-50 border-slate-100 opacity-60'}`}
-                  onClick={() => setRatingType('later')}
+                  className={`p-4 rounded-3xl border-4 transition-all cursor-pointer ${ratingType === 'later' ? 'bg-brand-yellow/10 border-brand-yellow opacity-100' : 'bg-slate-50 border-slate-100 opacity-40'}`}
+                  onClick={() => { setRatingType('later'); setFormData(p => ({ ...p, score: 1 })); }}
                 >
                   <div className="flex flex-col items-center gap-2">
                     <Star className={`w-8 h-8 ${ratingType === 'later' ? 'text-brand-yellow fill-brand-yellow' : 'text-slate-300'}`} />
@@ -186,8 +186,16 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
                           key={star} 
                           onMouseEnter={() => ratingType === 'later' && setHoverRating(star)}
                           onMouseLeave={() => setHoverRating(0)}
-                          onClick={(e: React.MouseEvent) => { e.stopPropagation(); setRatingType('later'); setFormData(p => ({ ...p, score: star })); }}
-                          className={`w-5 h-5 cursor-pointer transition-all ${star <= (hoverRating || (ratingType === 'later' ? formData.score : 0)) ? 'text-brand-yellow fill-brand-yellow' : 'text-slate-200'}`} 
+                          onClick={(e: React.MouseEvent) => { 
+                            e.stopPropagation(); 
+                            setRatingType('later'); 
+                            setFormData(p => ({ ...p, score: star })); 
+                          }}
+                          className={`w-5 h-5 cursor-pointer transition-all ${
+                            ratingType === 'later' && star <= (hoverRating || formData.score) 
+                              ? 'text-brand-yellow fill-brand-yellow' 
+                              : 'text-slate-200'
+                          }`} 
                         />
                       ))}
                     </div>
@@ -195,8 +203,8 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
                 </div>
 
                 <div 
-                  className={`p-4 rounded-3xl border-4 transition-all cursor-pointer ${ratingType === 'avoid' ? 'bg-brand-orange/10 border-brand-orange' : 'bg-slate-50 border-slate-100 opacity-60'}`}
-                  onClick={() => setRatingType('avoid')}
+                  className={`p-4 rounded-3xl border-4 transition-all cursor-pointer ${ratingType === 'avoid' ? 'bg-brand-orange/10 border-brand-orange opacity-100' : 'bg-slate-50 border-slate-100 opacity-40'}`}
+                  onClick={() => { setRatingType('avoid'); setFormData(p => ({ ...p, score: -1 })); }}
                 >
                   <div className="flex flex-col items-center gap-2">
                     <Skull className={`w-8 h-8 ${ratingType === 'avoid' ? 'text-brand-orange fill-brand-orange' : 'text-slate-300'}`} />
@@ -207,8 +215,16 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
                           key={skull} 
                           onMouseEnter={() => ratingType === 'avoid' && setHoverRating(skull)}
                           onMouseLeave={() => setHoverRating(0)}
-                          onClick={(e: React.MouseEvent) => { e.stopPropagation(); setRatingType('avoid'); setFormData(p => ({ ...p, score: -skull })); }}
-                          className={`w-5 h-5 cursor-pointer transition-all ${skull <= (hoverRating || (ratingType === 'avoid' ? Math.abs(formData.score) : 0)) ? 'text-brand-orange fill-brand-orange' : 'text-slate-200'}`} 
+                          onClick={(e: React.MouseEvent) => { 
+                            e.stopPropagation(); 
+                            setRatingType('avoid'); 
+                            setFormData(p => ({ ...p, score: -skull })); 
+                          }}
+                          className={`w-5 h-5 cursor-pointer transition-all ${
+                            ratingType === 'avoid' && skull <= (hoverRating || Math.abs(formData.score)) 
+                              ? 'text-brand-orange fill-brand-orange' 
+                              : 'text-slate-200'
+                          }`} 
                         />
                       ))}
                     </div>
