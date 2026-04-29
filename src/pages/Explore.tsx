@@ -20,6 +20,7 @@ export const Explore: React.FC = () => {
   // Track comments for visible cards to show on-card previews
   const [previews, setPreviews] = useState<Record<string, any[]>>({});
   const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [userAvatarFromAuth, setUserAvatarFromAuth] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
   // Toast state for share
@@ -55,6 +56,7 @@ export const Explore: React.FC = () => {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setCurrentUser(session?.user?.id || null);
+      setUserAvatarFromAuth(session?.user?.user_metadata?.avatar_emoji || null);
       setIsAdmin(session?.user?.user_metadata?.is_admin === true);
       await fetchPublicBooks();
       setLoading(false);
@@ -177,8 +179,15 @@ export const Explore: React.FC = () => {
           {filteredBooks.map((post) => (
             <div key={post.id} className="clay-card p-6 sm:p-10 border-4 border-slate-900 bg-white group hover:translate-y-[-8px] transition-all duration-500">
               <div className="flex items-center gap-4 mb-8">
-                <div className="w-14 h-14 rounded-full cute-gradient-yellow border-4 border-slate-900 flex items-center justify-center font-black text-slate-900 shadow-md uppercase overflow-hidden shrink-0">
-                  {post.user_avatar?.startsWith('http') ? (
+                <div className="w-14 h-14 rounded-full cute-gradient-yellow border-4 border-slate-900 flex items-center justify-center font-black text-slate-900 shadow-md uppercase overflow-hidden shrink-0 bg-slate-50">
+                  {/* Real-time sync: prioritize currentUser session data if it's the post owner */}
+                  {(currentUser && post.uid === currentUser && userAvatarFromAuth) ? (
+                    userAvatarFromAuth.startsWith('data:image') || userAvatarFromAuth.startsWith('http') ? (
+                      <img src={userAvatarFromAuth} alt="avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="text-2xl">{userAvatarFromAuth}</div>
+                    )
+                  ) : (post.user_avatar?.startsWith('data:image') || post.user_avatar?.startsWith('http')) ? (
                     <img src={post.user_avatar} alt="avatar" className="w-full h-full object-cover" />
                   ) : (
                     <div className="text-2xl">{post.user_avatar || '👻'}</div>

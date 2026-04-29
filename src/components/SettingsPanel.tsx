@@ -83,6 +83,20 @@ export const SettingsPanel: React.FC<{ user: User | null; onClose: () => void }>
       }
       
       console.log("Update success. New Metadata:", data.user.user_metadata);
+
+      // GLOBAL SYNC: Update all existing books by this user to reflect the new profile
+      try {
+        await supabase
+          .from('books')
+          .update({ 
+            user_display_name: nickname, 
+            user_avatar: avatar 
+          })
+          .eq('uid', user.id);
+      } catch (syncErr) {
+        console.error("Global sync failed:", syncErr);
+      }
+
       setSuccess(true);
       
       setTimeout(() => {
