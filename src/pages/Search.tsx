@@ -47,8 +47,8 @@ export const Search: React.FC = () => {
     navigate('/snapshot', { state: { book } });
   };
 
-  const handleAddManual = (book: Book) => {
-    navigate('/snapshot', { state: { book } });
+  const handleAddManual = (book: any) => {
+    navigate('/snapshot', { state: { book, existingData: { score: book.score, reason: book.description } } });
   };
 
   return (

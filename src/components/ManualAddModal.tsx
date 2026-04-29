@@ -15,8 +15,11 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
     title: '',
     authors: [],
     thumbnail: '',
-    description: ''
+    description: '',
+    score: 0 // Adding initial score
   });
+  const [ratingType, setRatingType] = useState<'later' | 'avoid' | null>(null);
+  const [hoverRating, setHoverRating] = useState(0);
   const [isOcrRunning, setIsOcrRunning] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -58,12 +61,21 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title) return;
-    onAdd({
+    if (!formData.title || !formData.score) {
+      if (!formData.score) alert("请先选择评分！");
+      return;
+    }
+    
+    // Instead of directly adding, we navigate to snapshot for final details (reason, progress, etc.)
+    // to keep the workflow consistent with search results.
+    const completeBook: Book = {
       ...formData,
       id: crypto.randomUUID()
-    });
+    };
+    
+    onAdd(completeBook); 
     setFormData({ id: '', title: '', authors: [], thumbnail: '', description: '' });
+    setRatingType(null);
     onClose();
   };
 
@@ -151,11 +163,59 @@ export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose,
               <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">补充简介（可选）</label>
               <textarea
                 placeholder="记录一下此刻的想法..."
-                rows={3}
+                rows={2}
                 className="w-full bg-slate-50 border-4 border-slate-100 px-6 py-4 rounded-[1.5rem] outline-none focus:border-brand-yellow focus:bg-white transition-all font-bold text-slate-900 resize-none"
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               />
+            </div>
+
+            {/* Dual Rating Selection */}
+            <div className="space-y-4">
+              <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">打分记录 *</label>
+              <div className="grid grid-cols-2 gap-4">
+                <div 
+                  className={`p-4 rounded-3xl border-4 transition-all cursor-pointer ${ratingType === 'later' ? 'bg-brand-yellow/10 border-brand-yellow' : 'bg-slate-50 border-slate-100 opacity-60'}`}
+                  onClick={() => setRatingType('later')}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <Star className={`w-8 h-8 ${ratingType === 'later' ? 'text-brand-yellow fill-brand-yellow' : 'text-slate-300'}`} />
+                    <span className={`text-[10px] font-black ${ratingType === 'later' ? 'text-slate-900' : 'text-slate-400'}`}>以后再读</span>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <Star 
+                          key={star} 
+                          onMouseEnter={() => ratingType === 'later' && setHoverRating(star)}
+                          onMouseLeave={() => setHoverRating(0)}
+                          onClick={(e) => { e.stopPropagation(); setRatingType('later'); setFormData(p => ({ ...p, score: star })); }}
+                          className={`w-5 h-5 cursor-pointer transition-all ${star <= (hoverRating || (ratingType === 'later' ? formData.score : 0)) ? 'text-brand-yellow fill-brand-yellow' : 'text-slate-200'}`} 
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div 
+                  className={`p-4 rounded-3xl border-4 transition-all cursor-pointer ${ratingType === 'avoid' ? 'bg-brand-orange/10 border-brand-orange' : 'bg-slate-50 border-slate-100 opacity-60'}`}
+                  onClick={() => setRatingType('avoid')}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <Skull className={`w-8 h-8 ${ratingType === 'avoid' ? 'text-brand-orange fill-brand-orange' : 'text-slate-300'}`} />
+                    <span className={`text-[10px] font-black ${ratingType === 'avoid' ? 'text-slate-900' : 'text-slate-400'}`}>果断避雷</span>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map(skull => (
+                        <Skull 
+                          key={skull} 
+                          onMouseEnter={() => ratingType === 'avoid' && setHoverRating(skull)}
+                          onMouseLeave={() => setHoverRating(0)}
+                          onClick={(e) => { e.stopPropagation(); setRatingType('avoid'); setFormData(p => ({ ...p, score: -skull })); }}
+                          className={`w-5 h-5 cursor-pointer transition-all ${skull <= (hoverRating || (ratingType === 'avoid' ? Math.abs(formData.score) : 0)) ? 'text-brand-orange fill-brand-orange' : 'text-slate-200'}`} 
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
