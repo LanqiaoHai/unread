@@ -7,21 +7,41 @@ interface ManualAddModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAdd: (book: Book & { score: number }) => void;
+  initialData?: Partial<Book>;
 }
 
 interface FormState extends Book {
   score: number;
 }
 
-export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose, onAdd }) => {
+export const ManualAddModal: React.FC<ManualAddModalProps> = ({ isOpen, onClose, onAdd, initialData }) => {
   const [formData, setFormData] = useState<FormState>({
-    id: '',
-    title: '',
-    authors: [],
-    thumbnail: '',
-    description: '',
+    id: initialData?.id || '',
+    title: initialData?.title || '',
+    authors: initialData?.authors || [],
+    thumbnail: initialData?.thumbnail || '',
+    description: initialData?.description || '',
     score: 0
   });
+
+  // Sync initialData when it changes
+  React.useEffect(() => {
+    if (isOpen && initialData) {
+      setFormData({
+        id: initialData.id || '',
+        title: initialData.title || '',
+        authors: initialData.authors || [],
+        thumbnail: initialData.thumbnail || '',
+        description: initialData.description || '',
+        score: 0
+      });
+      setRatingType(null);
+    } else if (isOpen) {
+      setFormData({ id: '', title: '', authors: [], thumbnail: '', description: '', score: 0 });
+      setRatingType(null);
+    }
+  }, [isOpen, initialData]);
+
   const [ratingType, setRatingType] = useState<'later' | 'avoid' | null>(null);
   const [hoverRating, setHoverRating] = useState(0);
   const [isOcrRunning, setIsOcrRunning] = useState(false);

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Search as SearchIcon, Book as BookIcon, ChevronRight, Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { ManualAddModal } from '../components/ManualAddModal';
+import { BookDetailsModal } from '../components/BookDetailsModal';
 import type { Book } from '../types';
 
 export const Search: React.FC = () => {
@@ -11,6 +12,10 @@ export const Search: React.FC = () => {
   const [results, setResults] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [manualInitialData, setManualInitialData] = useState<Partial<Book> | undefined>(undefined);
+  
   const navigate = useNavigate();
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -44,13 +49,23 @@ export const Search: React.FC = () => {
   };
 
   const handleSelectBook = (book: Book) => {
-    // Default to 'Read Later' (score: 5) for search results, 
-    // user can still change it if we add a selector, but for now let's make it positive
-    navigate('/snapshot', { state: { book: { ...book, score: 5 } } });
+    setSelectedBook(book);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleWriteRecord = (book: Book) => {
+    setIsDetailsModalOpen(false);
+    setManualInitialData(book);
+    setIsManualModalOpen(true);
   };
 
   const handleAddManual = (book: any) => {
     navigate('/snapshot', { state: { book, existingData: { score: book.score, reason: book.description } } });
+  };
+
+  const openFreshManual = () => {
+    setManualInitialData(undefined);
+    setIsManualModalOpen(true);
   };
 
   return (
@@ -79,8 +94,6 @@ export const Search: React.FC = () => {
         </button>
       </form>
 
-
-
       <div className="grid gap-8">
         {results.map((book) => (
           <motion.div
@@ -107,7 +120,7 @@ export const Search: React.FC = () => {
             <div className="flex-1 min-w-0">
               <h3 className="text-2xl font-black truncate text-slate-900 mb-2">{book.title}</h3>
               <p className="text-slate-400 font-bold mb-4">{book.authors?.join(', ') || '未知作者'}</p>
-              <p className="text-xs text-brand-orange font-black tracking-widest uppercase italic">点击开始记录</p>
+              <p className="text-xs text-brand-orange font-black tracking-widest uppercase italic">查看书友评价</p>
             </div>
             <div className="p-4 bg-slate-50 rounded-2xl group-hover:bg-brand-yellow transition-colors">
               <ChevronRight className="w-8 h-8 text-slate-400 group-hover:text-slate-900" />
@@ -121,7 +134,7 @@ export const Search: React.FC = () => {
           <Sparkles className="w-20 h-20 mb-6 text-slate-200" />
           <p className="text-xl font-black tracking-widest">在这里，给不想读的书一个归宿。</p>
           <button 
-            onClick={() => setIsManualModalOpen(true)}
+            onClick={openFreshManual}
             className="mt-8 px-10 py-4 border-4 border-slate-900 rounded-2xl font-black hover:bg-slate-900 hover:text-white transition-all btn-bouncy"
           >
             直接手动录入
@@ -129,10 +142,18 @@ export const Search: React.FC = () => {
         </div>
       )}
 
+      <BookDetailsModal 
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        book={selectedBook}
+        onWriteRecord={handleWriteRecord}
+      />
+
       <ManualAddModal 
         isOpen={isManualModalOpen} 
         onClose={() => setIsManualModalOpen(false)} 
         onAdd={handleAddManual} 
+        initialData={manualInitialData}
       />
     </div>
   );
