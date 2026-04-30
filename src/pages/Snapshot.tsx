@@ -15,8 +15,9 @@ export const Snapshot: React.FC = () => {
   const existingData = location.state?.existingData;
 
   const [step, setStep] = useState(1);
-  const score = existingData?.score || 0; // Keeping score as constant if no longer editable here
-  const [reason, setReason] = useState(existingData?.reason || '');
+  // Correctly get score from navigation state (passed from Search or Manual entry)
+  const score = location.state?.book?.score ?? existingData?.score ?? 0;
+  const [reason, setReason] = useState(existingData?.reason || location.state?.book?.description || '');
   const [progress, setProgress] = useState(existingData?.progress || '');
   const [isPublic, setIsPublic] = useState(existingData?.isPublic ?? true);
   const [isFinishing, setIsFinishing] = useState(false);
