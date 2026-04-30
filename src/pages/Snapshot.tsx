@@ -15,9 +15,9 @@ export const Snapshot: React.FC = () => {
   const existingData = location.state?.existingData;
 
   const [step, setStep] = useState(1);
-  // Correctly get score from navigation state (passed from Search or Manual entry)
-  const score = location.state?.book?.score ?? existingData?.score ?? 0;
-  const [reason, setReason] = useState(existingData?.reason || location.state?.book?.description || '');
+  // Robust score retrieval: checks book object or existingData from multiple sources
+  const score = location.state?.book?.score ?? location.state?.existingData?.score ?? 0;
+  const [reason, setReason] = useState(location.state?.existingData?.reason || location.state?.book?.description || '');
   const [progress, setProgress] = useState(existingData?.progress || '');
   const [isPublic, setIsPublic] = useState(existingData?.isPublic ?? true);
   const [isFinishing, setIsFinishing] = useState(false);

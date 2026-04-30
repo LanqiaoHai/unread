@@ -44,7 +44,9 @@ export const Search: React.FC = () => {
   };
 
   const handleSelectBook = (book: Book) => {
-    navigate('/snapshot', { state: { book } });
+    // Default to 'Read Later' (score: 5) for search results, 
+    // user can still change it if we add a selector, but for now let's make it positive
+    navigate('/snapshot', { state: { book: { ...book, score: 5 } } });
   };
 
   const handleAddManual = (book: any) => {
